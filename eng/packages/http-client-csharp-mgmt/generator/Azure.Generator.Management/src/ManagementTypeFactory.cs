@@ -51,12 +51,7 @@ namespace Azure.Generator.Management
 
         /// <inheritdoc/>
         protected override IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> AzureDependencyPackages =>
-            [
-                new("Azure.Core"),
-                new("Azure.ResourceManager"),
-                new("System.ClientModel"),
-                new("System.Text.Json")
-            ];
+            [];
 
         /// <inheritdoc/>
         protected override ClientProvider? CreateClientCore(InputClient inputClient)
@@ -95,7 +90,7 @@ namespace Azure.Generator.Management
         }
 
         /// <inheritdoc/>
-        public override MethodBodyStatement SerializeJsonValue(Type valueType, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter, SerializationFormat serializationFormat)
+        public override MethodBodyStatement SerializeJsonValue(CSharpType valueType, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter, SerializationFormat serializationFormat)
         {
             if (KnownManagementTypes.IsKnownManagementType(valueType))
             {
@@ -104,7 +99,7 @@ namespace Azure.Generator.Management
 
             if (KnownManagementTypes.TryGetJsonSerializationExpression(valueType, out var serializationExpression))
             {
-                return serializationExpression(value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+                return serializationExpression(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
             }
 
             return base.SerializeJsonValue(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
@@ -112,8 +107,12 @@ namespace Azure.Generator.Management
 
         /// <inheritdoc/>
 #pragma warning disable AZC0014 // Avoid using banned types in public API
-        public override ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element,
-            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter, SerializationFormat format)
+        public override ValueExpression DeserializeJsonValue(
+            CSharpType valueType,
+            ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
 #pragma warning restore AZC0014 // Avoid using banned types in public API
         {
             if (KnownManagementTypes.IsKnownManagementType(valueType))
@@ -142,7 +141,7 @@ namespace Azure.Generator.Management
                 return deserializationExpression(valueType, element, format);
             }
 
-            return base.DeserializeJsonValue(valueType, element, mrwOptionsParameter, format);
+            return base.DeserializeJsonValue(valueType, element, data, mrwOptionsParameter, format);
         }
 
         /// <inheritdoc/>

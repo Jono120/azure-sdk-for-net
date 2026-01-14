@@ -4,13 +4,11 @@
 using Azure.Core;
 using Azure.Generator.Management.Models;
 using Azure.Generator.Management.Snippets;
+using Azure.Generator.Management.Utilities;
 using Azure.ResourceManager;
-using Humanizer;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -19,22 +17,53 @@ namespace Azure.Generator.Management.Providers
 {
     internal sealed class MockableArmClientProvider : MockableResourceProvider
     {
-        // TODO -- we also need to put operations here when we want to support scope resources/operations https://github.com/Azure/azure-sdk-for-net/issues/51821
-        public MockableArmClientProvider(IReadOnlyList<ResourceClientProvider> resources)
-            : base(typeof(ArmClient), RequestPathPattern.Tenant, resources, new Dictionary<ResourceClientProvider, IReadOnlyList<ResourceMethod>>(), [])
+        private MockableArmClientProvider(IReadOnlyList<ResourceClientProvider> resources, IReadOnlyList<NonResourceMethod> nonResourceMethods)
+            : base(typeof(ArmClient), RequestPathPattern.Tenant, resources, new Dictionary<ResourceClientProvider, IReadOnlyList<ResourceMethod>>(), nonResourceMethods)
         {
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="MockableArmClientProvider"/> if there are resources or non-resource methods to generate methods for.
+        /// </summary>
+        /// <param name="resources">The resources to generate methods for.</param>
+        /// <param name="nonResourceMethods">The non-resource methods to generate methods for.</param>
+        /// <returns>A new instance of <see cref="MockableArmClientProvider"/> if there are resources or non-resource methods, otherwise null.</returns>
+        public static MockableArmClientProvider? TryCreate(IReadOnlyList<ResourceClientProvider> resources, IReadOnlyList<NonResourceMethod> nonResourceMethods)
+        {
+            if (resources.Count == 0 && nonResourceMethods.Count == 0)
+            {
+                return null;
+            }
+            return new MockableArmClientProvider(resources, nonResourceMethods);
         }
 
         protected override MethodProvider[] BuildMethods()
         {
-            var methods = new List<MethodProvider>(_resources.Count);
+            var methods = new List<MethodProvider>(_resources.Count + _nonResourceMethods.Count * 2);
+
+            // Build methods for extension resources
             foreach (var resource in _resources)
             {
                 methods.Add(BuildGetResourceIdMethodForResource(resource));
                 if (resource.IsExtensionResource)
                 {
-                    methods.AddRange(BuildMethodsForExtensionResource(resource));
+                    if (resource.IsSingleton)
+                    {
+                        methods.AddRange(BuildMethodsForExtensionSingletonResource(resource));
+                    }
+                    else
+                    {
+                        methods.AddRange(BuildMethodsForExtensionNonSingletonResource(resource));
+                    }
                 }
+            }
+
+            // Build methods for non-resource extension operations
+            foreach (var method in _nonResourceMethods)
+            {
+                // Process both async and sync method variants
+                methods.Add(BuildServiceMethod(method.InputMethod, method.InputClient, true));
+                methods.Add(BuildServiceMethod(method.InputMethod, method.InputClient, false));
             }
 
             return [.. methods];
@@ -66,8 +95,7 @@ namespace Azure.Generator.Management.Providers
             return new MethodProvider(signature, body, this);
         }
 
-        //TODO: handle singleton extension resource case when we actually see it
-        private IList<MethodProvider> BuildMethodsForExtensionResource(ResourceClientProvider resource)
+        private IList<MethodProvider> BuildMethodsForExtensionNonSingletonResource(ResourceClientProvider resource)
         {
             var result = new List<MethodProvider>();
             var scopeParameter = new ParameterProvider("scope", $"The scope of the resource collection to get.", typeof(ResourceIdentifier));
@@ -129,6 +157,34 @@ namespace Azure.Generator.Management.Providers
                     Return(This.Invoke(collectionGetSignature).Invoke(resourceGetMethod.Signature)),
                     enclosingType);
             }
+        }
+
+        private IList<MethodProvider> BuildMethodsForExtensionSingletonResource(ResourceClientProvider resource)
+        {
+            var result = new List<MethodProvider>();
+
+            var scopeParameter = new ParameterProvider("scope", $"The scope that the resource will apply against.", typeof(ResourceIdentifier));
+            var signature = new MethodSignature(
+                $"{resource.FactoryMethodSignature.Name}",
+                $"Gets an object representing a {resource.Type:C} along with the instance operations that can be performed on it in the ArmClient",
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                resource.Type,
+                $"Returns a {resource.Type:C} object.",
+                [scopeParameter]);
+
+            var body = new MethodBodyStatement[]
+            {
+                Return(New.Instance(resource.Type,
+                    [
+                        This.As<ArmResource>().Client(),
+                        MockableResourceProvider.BuildSingletonResourceIdentifier(scopeParameter.As<ResourceIdentifier>(), resource.ResourceTypeValue, resource.SingletonResourceName!)
+                    ]))
+            };
+
+            var getByScopeMethod = new MethodProvider(signature, body, this);
+            result.Add(getByScopeMethod);
+
+            return result;
         }
     }
 }

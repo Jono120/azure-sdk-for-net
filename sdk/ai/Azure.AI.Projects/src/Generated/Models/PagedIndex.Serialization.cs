@@ -39,7 +39,7 @@ namespace Azure.Core
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStartArray();
-            foreach (SearchIndex item in Value)
+            foreach (AIProjectIndex item in Value)
             {
                 writer.WriteObjectValue(item, options);
             }
@@ -91,17 +91,17 @@ namespace Azure.Core
             {
                 return null;
             }
-            IList<SearchIndex> value = default;
+            IList<AIProjectIndex> value = default;
             Uri nextLink = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("value"u8))
                 {
-                    List<SearchIndex> array = new List<SearchIndex>();
+                    List<AIProjectIndex> array = new List<AIProjectIndex>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(SearchIndex.DeserializeSearchIndex(item, options));
+                        array.Add(AIProjectIndex.DeserializeAIProjectIndex(item, options));
                     }
                     value = array;
                     continue;
@@ -112,7 +112,7 @@ namespace Azure.Core
                     {
                         continue;
                     }
-                    nextLink = new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
                     continue;
                 }
                 if (options.Format != "W")
@@ -151,7 +151,7 @@ namespace Azure.Core
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return DeserializePagedIndex(document.RootElement, options);
                     }
@@ -166,8 +166,8 @@ namespace Azure.Core
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PagedIndex"/> from. </param>
         public static explicit operator PagedIndex(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializePagedIndex(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

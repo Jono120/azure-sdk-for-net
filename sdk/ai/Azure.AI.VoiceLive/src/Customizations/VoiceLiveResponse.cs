@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Azure.AI.VoiceLive
 {
@@ -28,12 +29,6 @@ namespace Azure.AI.VoiceLive
         /// </item>
         /// <item>
         /// <description> <see cref="AzureVoice"/>. </description>
-        /// </item>
-        /// <item>
-        /// <description> <see cref="LlmVoiceName"/>. </description>
-        /// </item>
-        /// <item>
-        /// <description> <see cref="LlmVoice"/>. </description>
         /// </item>
         /// </list>
         /// </remarks>
@@ -67,6 +62,7 @@ namespace Azure.AI.VoiceLive
         /// </summary>
         public VoiceProvider Voice { get; }
 
+        /*
         internal IList<ResponseModality> ModalitiesInternal { get; }
 
         /// <summary>
@@ -79,17 +75,20 @@ namespace Azure.AI.VoiceLive
                 SessionUpdateModality modalities = 0;
                 foreach (var modality in ModalitiesInternal)
                 {
-                    modalities |= modality switch
+                    switch (modality.ToString())
                     {
-                        ResponseModality.Text => SessionUpdateModality.Text,
-                        ResponseModality.Audio => SessionUpdateModality.Audio,
-                        _ => throw new ArgumentException()
-                    };
+                        case ResponseModality.Text.ToString():
+                            return SessionUpdateModality.Text;
+                        case ResponseModality.Audio.ToString():
+                            return SessionUpdateModality.Audio;
+                        default:
+                            throw new ArgumentException();
+                    }
                 }
-
-                return modalities; ;
+                return modalities;
             }
         }
+        */
 
         [CodeGenMember("MaxOutputTokens")]
         private BinaryData _MaxOutputTokens { get; }
@@ -98,7 +97,7 @@ namespace Azure.AI.VoiceLive
         /// Maximum number of output tokens for a single assistant response,
         /// inclusive of tool calls, that was used in this response.
         /// </summary>
-        public ResponseMaxOutputTokensOption MaxOutputTokens
+        public MaxResponseOutputTokensOption MaxOutputTokens
         {
             get;
         }

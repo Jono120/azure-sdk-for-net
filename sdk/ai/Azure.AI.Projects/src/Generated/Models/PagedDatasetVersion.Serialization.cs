@@ -39,7 +39,7 @@ namespace Azure.Core
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStartArray();
-            foreach (DatasetVersion item in Value)
+            foreach (AIProjectDataset item in Value)
             {
                 writer.WriteObjectValue(item, options);
             }
@@ -91,17 +91,17 @@ namespace Azure.Core
             {
                 return null;
             }
-            IList<DatasetVersion> value = default;
+            IList<AIProjectDataset> value = default;
             Uri nextLink = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("value"u8))
                 {
-                    List<DatasetVersion> array = new List<DatasetVersion>();
+                    List<AIProjectDataset> array = new List<AIProjectDataset>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(DatasetVersion.DeserializeDatasetVersion(item, options));
+                        array.Add(AIProjectDataset.DeserializeAIProjectDataset(item, options));
                     }
                     value = array;
                     continue;
@@ -112,7 +112,7 @@ namespace Azure.Core
                     {
                         continue;
                     }
-                    nextLink = new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
                     continue;
                 }
                 if (options.Format != "W")
@@ -151,7 +151,7 @@ namespace Azure.Core
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return DeserializePagedDatasetVersion(document.RootElement, options);
                     }
@@ -166,8 +166,8 @@ namespace Azure.Core
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PagedDatasetVersion"/> from. </param>
         public static explicit operator PagedDatasetVersion(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializePagedDatasetVersion(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

@@ -39,7 +39,7 @@ namespace Azure.Core.Foundations
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStartArray();
-            foreach (ConnectionProperties item in Value)
+            foreach (AIProjectConnection item in Value)
             {
                 writer.WriteObjectValue(item, options);
             }
@@ -91,7 +91,7 @@ namespace Azure.Core.Foundations
             {
                 return null;
             }
-            IList<ConnectionProperties> value = default;
+            IList<AIProjectConnection> value = default;
             Uri nextLink = default;
             string clientRequestId = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
@@ -99,10 +99,10 @@ namespace Azure.Core.Foundations
             {
                 if (prop.NameEquals("value"u8))
                 {
-                    List<ConnectionProperties> array = new List<ConnectionProperties>();
+                    List<AIProjectConnection> array = new List<AIProjectConnection>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(ConnectionProperties.DeserializeConnectionProperties(item, options));
+                        array.Add(AIProjectConnection.DeserializeAIProjectConnection(item, options));
                     }
                     value = array;
                     continue;
@@ -113,7 +113,7 @@ namespace Azure.Core.Foundations
                     {
                         continue;
                     }
-                    nextLink = new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
                     continue;
                 }
                 if (options.Format != "W")
@@ -152,7 +152,7 @@ namespace Azure.Core.Foundations
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return DeserializePagedConnection(document.RootElement, options);
                     }
@@ -167,8 +167,8 @@ namespace Azure.Core.Foundations
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PagedConnection"/> from. </param>
         public static explicit operator PagedConnection(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializePagedConnection(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

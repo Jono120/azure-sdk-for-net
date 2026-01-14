@@ -33,6 +33,7 @@
     "*.sln",
     "*.user",
     ".vscode/cspell.json",
+    "cspell.yaml",
     "assets.json",
     "eng/Packages.Data.props",
     "sdk/confidentialledger/Azure.Security.CodeTransparency/tests/TestFiles/*",
@@ -436,24 +437,9 @@
       ]
     },
     {
-      "filename": "**/sdk/connectedvmwarevsphere/**/*",
-      "words": [
-        "cpus",
-        "ctlr",
-        "lsilogic",
-        "lsilogicsas",
-        "pcnet",
-        "pmem",
-        "pvscsi",
-        "sesparse",
-        "vcenter",
-        "vmware",
-        "vsphere"
-      ]
-    },
-    {
       "filename": "**/sdk/containerapps/**/*",
       "words": [
+        "agentic",
         "dapr",
         "grpc",
         "proto"
@@ -488,6 +474,8 @@
         "somaxconn",
         "sysctls",
         "tcpkeepalive",
+        "undrainable",
+        "vtpm",
         "wasi",
         "wmem"
       ]
@@ -537,6 +525,7 @@
     {
       "filename": "**/sdk/datadog/**/*.cs",
       "words": [
+        "cspm",
         "liftr"
       ]
     },
@@ -640,17 +629,10 @@
         "cnames",
         "easm",
         "nxdomain",
-        "whois"
-      ]
-    },
-    {
-      "filename": "**/sdk/desktopvirtualization/**/*.cs",
-      "words": [
-        "adfs",
-        "fslogix",
-        "msix",
-        "sso",
-        "unhide"
+        "whois",
+        "cisa",
+        "cves",
+        "remediations"
       ]
     },
     {
@@ -762,13 +744,6 @@
       ]
     },
     {
-      "filename": "**/sdk/hybridaks/**/*.cs",
-      "words": [
-        "kubevirt",
-        "vmip"
-      ]
-    },
-    {
       "filename": "**/sdk/hybridcompute/**/*.cs",
       "words": [
         "scvmm"
@@ -778,6 +753,12 @@
       "filename": "**/sdk/hybridkubernetes/**/*.cs",
       "words": [
         "kubeconfigs"
+      ]
+    },
+    {
+      "filename": "**/sdk/impactreporting/**/*.cs",
+      "words": [
+        "milli"
       ]
     },
     {
@@ -1119,6 +1100,7 @@
         "dbnodeocid",
         "dbserverocid",
         "dbsystemshapename",
+        "dbversionsname",
         "dnsprivateviewocid",
         "ecpu",
         "exadata",
@@ -1186,15 +1168,6 @@
       ]
     },
     {
-      "filename": "**/sdk/postgresql/**/*.cs",
-      "words": [
-        "awsec",
-        "byok",
-        "vcore",
-        "vcores"
-      ]
-    },
-    {
       "filename": "**/sdk/powerbidedicated/**/*.cs",
       "words": [
         "pbie",
@@ -1212,47 +1185,8 @@
       "filename": "**/sdk/providerhub/**/*.cs",
       "words": [
         "checkin",
+        "dsts",
         "regionality"
-      ]
-    },
-    {
-      "filename": "**/sdk/provisioning/Azure.Provisioning.Kusto/**/*.cs",
-      "words": [
-        "apacheavro",
-        "openai",
-        "scsv",
-        "sohsv",
-        "tbps",
-        "tsve"
-      ]
-    },
-    {
-      "filename": "**/sdk/provisioning/Azure.Provisioning.PostgreSql/**/*.cs",
-      "words": [
-        "awsec"
-      ]
-    },
-    {
-      "filename": "**/sdk/provisioning/Azure.Provisioning.Sql/**/*.cs",
-      "words": [
-        "freemium"
-      ]
-    },
-    {
-      "filename": "**/sdk/provisioning/Azure.Provisioning.Storage/**/*.cs",
-      "words": [
-        "mibps"
-      ]
-    },
-    {
-      "filename": "**/sdk/provisioning/Azure.Provisioning.Network/**/*.cs",
-      "words": [
-        "dscp",
-        "fqdns",
-        "ipam",
-        "snat",
-        "vnets",
-        "vxlan"
       ]
     },
     {
@@ -1270,67 +1204,9 @@
       ]
     },
     {
-      "filename": "**/sdk/recoveryservices/**/*.cs",
-      "words": [
-        "bcdr"
-      ]
-    },
-    {
-      "filename": "**/sdk/recoveryservices-backup/**/*.cs",
-      "words": [
-        "dedup",
-        "dpm",
-        "hana",
-        "kpis",
-        "mab",
-        "rehydrated",
-        "reregister",
-        "vmilr",
-        "xcool",
-        "xsmb"
-      ]
-    },
-    {
-      "filename": "**/sdk/recoveryservices-datareplication/**/*.cs",
-      "words": [
-        "dras",
-        "fqdns",
-        "nics",
-        "reprotect"
-      ]
-    },
-    {
-      "filename": "**/sdk/recoveryservices-siterecovery/**/*.cs",
-      "words": [
-        "ahub",
-        "bcdr",
-        "distro",
-        "dras",
-        "esxi",
-        "fqdns",
-        "nics",
-        "orignal",
-        "payg",
-        "reassociate",
-        "reprotect",
-        "seleted",
-        "vcenter",
-        "vcpus",
-        "vmware"
-      ]
-    },
-    {
       "filename": "**/sdk/reservations/**/*.cs",
       "words": [
         "unprovisioning"
-      ]
-    },
-    {
-      "filename": "**/sdk/resourceconnector/Azure.ResourceManager.ResourceConnector/api/*.cs",
-      "words": [
-        "capi",
-        "kvaio",
-        "scvmm"
       ]
     },
     {
@@ -1474,6 +1350,7 @@
       "filename": "**/sdk/search/**/*.cs",
       "words": [
         "adls",
+        "agentic",
         "bangla",
         "beider",
         "bokmaal",
