@@ -64,12 +64,14 @@
     "aadds",
     "aadkerb",
     "adls",
+    "agentic",
     "aoai",
     "apos",
     "azsdk",
     "blazor",
     "byok",
     "centralus",
+    "clippy",
     "colls",
     "contoso",
     "cpus",
@@ -212,17 +214,6 @@
       ]
     },
     {
-      "filename": "**/sdk/ai/**/*.cs",
-      "words": [
-        "ansii",
-        "atbash",
-        "azureai",
-        "bleu",
-        "gleu",
-        "ubinary"
-      ]
-    },
-    {
       "filename": "**/sdk/analysisservices/**/*.cs",
       "words": [
         "dmts"
@@ -281,6 +272,7 @@
       "filename": "**/sdk/avs/**/*.cs",
       "words": [
         "dhcps",
+        "esxi",
         "iscsi",
         "mirrorings",
         "nsxt",
@@ -992,18 +984,6 @@
         "actuals",
         "bangla",
         "hecto"
-      ]
-    },
-    {
-      "filename": "**/sdk/mediaservices/**/*.cs",
-      "words": [
-        "cabac",
-        "cavlc",
-        "cbcs",
-        "cenc",
-        "deinterlace",
-        "rtmp",
-        "scms"
       ]
     },
     {

@@ -142,6 +142,7 @@ namespace Azure.ResourceManager.ResourceConnector
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(nextPage);
+            uri.UpdateQuery("api-version", _apiVersion);
             HttpMessage message = Pipeline.CreateMessage();
             Request request = message.Request;
             request.Uri = uri;
@@ -170,6 +171,7 @@ namespace Azure.ResourceManager.ResourceConnector
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(nextPage);
+            uri.UpdateQuery("api-version", _apiVersion);
             HttpMessage message = Pipeline.CreateMessage();
             Request request = message.Request;
             request.Uri = uri;
@@ -261,6 +263,7 @@ namespace Azure.ResourceManager.ResourceConnector
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(nextPage);
+            uri.UpdateQuery("api-version", _apiVersion);
             HttpMessage message = Pipeline.CreateMessage();
             Request request = message.Request;
             request.Uri = uri;
@@ -269,7 +272,7 @@ namespace Azure.ResourceManager.ResourceConnector
             return message;
         }
 
-        internal HttpMessage CreateGetTelemetryConfigApplianceRequest(string subscriptionId, RequestContext context)
+        internal HttpMessage CreateGetApplianceTelemetryConfigRequest(string subscriptionId, RequestContext context)
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);

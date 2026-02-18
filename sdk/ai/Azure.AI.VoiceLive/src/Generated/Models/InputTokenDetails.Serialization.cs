@@ -20,6 +20,46 @@ namespace Azure.AI.VoiceLive
         {
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual InputTokenDetails PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<InputTokenDetails>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeInputTokenDetails(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(InputTokenDetails)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<InputTokenDetails>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureAIVoiceLiveContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(InputTokenDetails)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<InputTokenDetails>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        InputTokenDetails IPersistableModel<InputTokenDetails>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<InputTokenDetails>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<InputTokenDetails>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -44,6 +84,8 @@ namespace Azure.AI.VoiceLive
             writer.WriteNumberValue(TextTokens);
             writer.WritePropertyName("audio_tokens"u8);
             writer.WriteNumberValue(AudioTokens);
+            writer.WritePropertyName("image_tokens"u8);
+            writer.WriteNumberValue(ImageTokens);
             writer.WritePropertyName("cached_tokens_details"u8);
             writer.WriteObjectValue(CachedTokensDetails, options);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
@@ -91,6 +133,7 @@ namespace Azure.AI.VoiceLive
             int cachedTokens = default;
             int textTokens = default;
             int audioTokens = default;
+            int imageTokens = default;
             CachedTokenDetails cachedTokensDetails = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -110,6 +153,11 @@ namespace Azure.AI.VoiceLive
                     audioTokens = prop.Value.GetInt32();
                     continue;
                 }
+                if (prop.NameEquals("image_tokens"u8))
+                {
+                    imageTokens = prop.Value.GetInt32();
+                    continue;
+                }
                 if (prop.NameEquals("cached_tokens_details"u8))
                 {
                     cachedTokensDetails = CachedTokenDetails.DeserializeCachedTokenDetails(prop.Value, options);
@@ -120,47 +168,13 @@ namespace Azure.AI.VoiceLive
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new InputTokenDetails(cachedTokens, textTokens, audioTokens, cachedTokensDetails, additionalBinaryDataProperties);
+            return new InputTokenDetails(
+                cachedTokens,
+                textTokens,
+                audioTokens,
+                imageTokens,
+                cachedTokensDetails,
+                additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<InputTokenDetails>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<InputTokenDetails>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureAIVoiceLiveContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(InputTokenDetails)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        InputTokenDetails IPersistableModel<InputTokenDetails>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual InputTokenDetails PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<InputTokenDetails>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeInputTokenDetails(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(InputTokenDetails)} does not support reading '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<InputTokenDetails>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

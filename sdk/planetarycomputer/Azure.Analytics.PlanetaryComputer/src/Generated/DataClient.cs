@@ -215,23 +215,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="context"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
@@ -281,23 +276,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="context"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
@@ -340,50 +330,31 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual Response<IReadOnlyDictionary<string, BinaryData>> GetAssetStatistics(string collectionId, string itemId, IEnumerable<string> assets = default, string expression = default, string assetBandIndices = default, bool? assetAsBand = default, float? noData = default, bool? unscale = default, ResamplingMethod? resampling = default, int? maxSize = default, bool? categorical = default, IEnumerable<string> categoriesPixels = default, IEnumerable<int> percentiles = default, string histogramBins = default, string histogramRange = default, CancellationToken cancellationToken = default)
+        public virtual Response<AssetStatisticsResponse> GetAssetStatistics(string collectionId, string itemId, IEnumerable<string> assets = default, string expression = default, string assetBandIndices = default, bool? assetAsBand = default, float? noData = default, bool? unscale = default, ResamplingMethod? resampling = default, int? maxSize = default, bool? categorical = default, IEnumerable<string> categoriesPixels = default, IEnumerable<int> percentiles = default, string histogramBins = default, string histogramRange = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
             Argument.AssertNotNullOrEmpty(itemId, nameof(itemId));
 
             Response result = GetAssetStatistics(collectionId, itemId, assets, expression, assetBandIndices, assetAsBand, noData, unscale, resampling?.ToString(), maxSize, categorical, categoriesPixels, percentiles, histogramBins, histogramRange, cancellationToken.ToRequestContext());
-            IDictionary<string, BinaryData> value = new Dictionary<string, BinaryData>();
-            BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                if (item.Value.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(item.Name, null);
-                }
-                else
-                {
-                    value.Add(item.Name, BinaryData.FromString(item.Value.GetRawText()));
-                }
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, BinaryData>)value, result);
+            return Response.FromValue((AssetStatisticsResponse)result, result);
         }
 
         /// <summary> Per Asset statistics. </summary>
@@ -402,50 +373,31 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual async Task<Response<IReadOnlyDictionary<string, BinaryData>>> GetAssetStatisticsAsync(string collectionId, string itemId, IEnumerable<string> assets = default, string expression = default, string assetBandIndices = default, bool? assetAsBand = default, float? noData = default, bool? unscale = default, ResamplingMethod? resampling = default, int? maxSize = default, bool? categorical = default, IEnumerable<string> categoriesPixels = default, IEnumerable<int> percentiles = default, string histogramBins = default, string histogramRange = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<AssetStatisticsResponse>> GetAssetStatisticsAsync(string collectionId, string itemId, IEnumerable<string> assets = default, string expression = default, string assetBandIndices = default, bool? assetAsBand = default, float? noData = default, bool? unscale = default, ResamplingMethod? resampling = default, int? maxSize = default, bool? categorical = default, IEnumerable<string> categoriesPixels = default, IEnumerable<int> percentiles = default, string histogramBins = default, string histogramRange = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
             Argument.AssertNotNullOrEmpty(itemId, nameof(itemId));
 
             Response result = await GetAssetStatisticsAsync(collectionId, itemId, assets, expression, assetBandIndices, assetAsBand, noData, unscale, resampling?.ToString(), maxSize, categorical, categoriesPixels, percentiles, histogramBins, histogramRange, cancellationToken.ToRequestContext()).ConfigureAwait(false);
-            IDictionary<string, BinaryData> value = new Dictionary<string, BinaryData>();
-            BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                if (item.Value.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(item.Name, null);
-                }
-                else
-                {
-                    value.Add(item.Name, BinaryData.FromString(item.Value.GetRawText()));
-                }
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, BinaryData>)value, result);
+            return Response.FromValue((AssetStatisticsResponse)result, result);
         }
 
         /// <summary>
@@ -1017,23 +969,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="context"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
@@ -1086,23 +1033,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="context"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
@@ -1148,23 +1090,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
@@ -1199,23 +1136,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
@@ -1414,20 +1346,13 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual Response<IReadOnlyDictionary<string, TilerInfo>> GetItemAssetDetails(string collectionId, string itemId, IEnumerable<string> assets = default, CancellationToken cancellationToken = default)
+        public virtual Response<TilerInfoMapResponse> GetItemAssetDetails(string collectionId, string itemId, IEnumerable<string> assets = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
             Argument.AssertNotNullOrEmpty(itemId, nameof(itemId));
 
             Response result = GetItemAssetDetails(collectionId, itemId, assets, cancellationToken.ToRequestContext());
-            IDictionary<string, TilerInfo> value = new Dictionary<string, TilerInfo>();
-            BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                value.Add(item.Name, TilerInfo.DeserializeTilerInfo(item.Value, ModelSerializationExtensions.WireOptions));
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, TilerInfo>)value, result);
+            return Response.FromValue((TilerInfoMapResponse)result, result);
         }
 
         /// <summary> Return dataset's basic info. </summary>
@@ -1438,20 +1363,13 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="collectionId"/> or <paramref name="itemId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual async Task<Response<IReadOnlyDictionary<string, TilerInfo>>> GetItemAssetDetailsAsync(string collectionId, string itemId, IEnumerable<string> assets = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<TilerInfoMapResponse>> GetItemAssetDetailsAsync(string collectionId, string itemId, IEnumerable<string> assets = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
             Argument.AssertNotNullOrEmpty(itemId, nameof(itemId));
 
             Response result = await GetItemAssetDetailsAsync(collectionId, itemId, assets, cancellationToken.ToRequestContext()).ConfigureAwait(false);
-            IDictionary<string, TilerInfo> value = new Dictionary<string, TilerInfo>();
-            BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                value.Add(item.Name, TilerInfo.DeserializeTilerInfo(item.Value, ModelSerializationExtensions.WireOptions));
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, TilerInfo>)value, result);
+            return Response.FromValue((TilerInfoMapResponse)result, result);
         }
 
         /// <summary>
@@ -2573,23 +2491,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="context"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
@@ -2639,23 +2552,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="context"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
@@ -2698,23 +2606,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
@@ -2746,23 +2649,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="percentiles"> List of percentile values (default to [2, 98]). </param>
         /// <param name="histogramBins">
         /// Defines the number of equal-width bins in the given range (10, by default).
-        /// 
         /// If bins is a sequence (comma `,` delimited values), it defines a monotonically
         /// increasing array of bin edges, including the rightmost edge, allowing for
         /// non-uniform bin widths.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="histogramRange">
         /// Comma `,` delimited range of the bins.
-        /// 
         /// The lower and upper range of the bins. If not provided, range is simply
         /// (a.min(), a.max()).
-        /// 
         /// Values outside the range are ignored. The first element of the range must be
         /// less than or equal to the second.
         /// range affects the automatic bin computation as well.
-        /// 
         /// link: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
         /// </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
@@ -2806,7 +2704,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -2868,7 +2766,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -2923,7 +2821,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -2967,7 +2865,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3025,7 +2923,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3097,7 +2995,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3162,7 +3060,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3216,7 +3114,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3267,7 +3165,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3326,7 +3224,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3378,7 +3276,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3419,7 +3317,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -3518,26 +3416,12 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="classmapName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="classmapName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual Response<IReadOnlyDictionary<string, BinaryData>> GetClassMapLegend(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
+        public virtual Response<ClassMapLegendResponse> GetClassMapLegend(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(classmapName, nameof(classmapName));
 
             Response result = GetClassMapLegend(classmapName, trimStart, trimEnd, cancellationToken.ToRequestContext());
-            IDictionary<string, BinaryData> value = new Dictionary<string, BinaryData>();
-            BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                if (item.Value.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(item.Name, null);
-                }
-                else
-                {
-                    value.Add(item.Name, BinaryData.FromString(item.Value.GetRawText()));
-                }
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, BinaryData>)value, result);
+            return Response.FromValue((ClassMapLegendResponse)result, result);
         }
 
         /// <summary> Generate values and color swatches mapping for a given classmap. </summary>
@@ -3548,39 +3432,20 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="classmapName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="classmapName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual async Task<Response<IReadOnlyDictionary<string, BinaryData>>> GetClassMapLegendAsync(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<ClassMapLegendResponse>> GetClassMapLegendAsync(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(classmapName, nameof(classmapName));
 
             Response result = await GetClassMapLegendAsync(classmapName, trimStart, trimEnd, cancellationToken.ToRequestContext()).ConfigureAwait(false);
-            IDictionary<string, BinaryData> value = new Dictionary<string, BinaryData>();
-            BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                if (item.Value.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(item.Name, null);
-                }
-                else
-                {
-                    value.Add(item.Name, BinaryData.FromString(item.Value.GetRawText()));
-                }
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, BinaryData>)value, result);
+            return Response.FromValue((ClassMapLegendResponse)result, result);
         }
 
         /// <summary>
         /// [Protocol Method] Generate values and color swatches mapping for a given interval classmap.
-        /// 
         /// Returns a color map for intervals, where each interval is defined by:
-        /// - A numeric range `[min, max]` representing the interval boundaries.
-        /// - An RGBA color `[red, green, blue, alpha]` associated with the interval.
-        /// 
+        /// <list type="bullet"><item><description>A numeric range `[min, max]` representing the interval boundaries.</description></item><item><description>An RGBA color `[red, green, blue, alpha]` associated with the interval.</description></item></list>
         /// The response is a 2D array of interval definitions, where each element is a pair:
-        /// - The first element is an array of two numbers `[min, max]` defining the interval.
-        /// - The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.
-        /// 
+        /// <list type="bullet"><item><description>The first element is an array of two numbers `[min, max]` defining the interval.</description></item><item><description>The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.</description></item></list>
         /// Example:
         /// ```json
         /// [
@@ -3593,8 +3458,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// ]
         /// ```
         /// This example defines two intervals:
-        /// - The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).
-        /// - The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).
+        /// <list type="bullet"><item><description>The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).</description></item><item><description>The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).</description></item></list>
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -3629,15 +3493,10 @@ namespace Azure.Analytics.PlanetaryComputer
 
         /// <summary>
         /// [Protocol Method] Generate values and color swatches mapping for a given interval classmap.
-        /// 
         /// Returns a color map for intervals, where each interval is defined by:
-        /// - A numeric range `[min, max]` representing the interval boundaries.
-        /// - An RGBA color `[red, green, blue, alpha]` associated with the interval.
-        /// 
+        /// <list type="bullet"><item><description>A numeric range `[min, max]` representing the interval boundaries.</description></item><item><description>An RGBA color `[red, green, blue, alpha]` associated with the interval.</description></item></list>
         /// The response is a 2D array of interval definitions, where each element is a pair:
-        /// - The first element is an array of two numbers `[min, max]` defining the interval.
-        /// - The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.
-        /// 
+        /// <list type="bullet"><item><description>The first element is an array of two numbers `[min, max]` defining the interval.</description></item><item><description>The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.</description></item></list>
         /// Example:
         /// ```json
         /// [
@@ -3650,8 +3509,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// ]
         /// ```
         /// This example defines two intervals:
-        /// - The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).
-        /// - The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).
+        /// <list type="bullet"><item><description>The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).</description></item><item><description>The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).</description></item></list>
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -3686,15 +3544,10 @@ namespace Azure.Analytics.PlanetaryComputer
 
         /// <summary>
         /// Generate values and color swatches mapping for a given interval classmap.
-        /// 
         /// Returns a color map for intervals, where each interval is defined by:
-        /// - A numeric range `[min, max]` representing the interval boundaries.
-        /// - An RGBA color `[red, green, blue, alpha]` associated with the interval.
-        /// 
+        /// <list type="bullet"><item><description>A numeric range `[min, max]` representing the interval boundaries.</description></item><item><description>An RGBA color `[red, green, blue, alpha]` associated with the interval.</description></item></list>
         /// The response is a 2D array of interval definitions, where each element is a pair:
-        /// - The first element is an array of two numbers `[min, max]` defining the interval.
-        /// - The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.
-        /// 
+        /// <list type="bullet"><item><description>The first element is an array of two numbers `[min, max]` defining the interval.</description></item><item><description>The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.</description></item></list>
         /// Example:
         /// ```json
         /// [
@@ -3707,8 +3560,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// ]
         /// ```
         /// This example defines two intervals:
-        /// - The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).
-        /// - The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).
+        /// <list type="bullet"><item><description>The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).</description></item><item><description>The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).</description></item></list>
         /// </summary>
         /// <param name="classmapName"> classmap name. </param>
         /// <param name="trimStart"> Number of items to trim from the start of the cmap. </param>
@@ -3717,39 +3569,22 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="classmapName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="classmapName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual Response<IReadOnlyDictionary<string, BinaryData>> GetIntervalLegend(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
+        public virtual Response<IReadOnlyList<IList<IList<long>>>> GetIntervalLegend(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(classmapName, nameof(classmapName));
 
             Response result = GetIntervalLegend(classmapName, trimStart, trimEnd, cancellationToken.ToRequestContext());
-            IDictionary<string, BinaryData> value = new Dictionary<string, BinaryData>();
+            List<IList<IList<long>>> value = new List<IList<IList<long>>>();
             BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                if (item.Value.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(item.Name, null);
-                }
-                else
-                {
-                    value.Add(item.Name, BinaryData.FromString(item.Value.GetRawText()));
-                }
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, BinaryData>)value, result);
+            return Response.FromValue((IReadOnlyList<IList<IList<long>>>)value, result);
         }
 
         /// <summary>
         /// Generate values and color swatches mapping for a given interval classmap.
-        /// 
         /// Returns a color map for intervals, where each interval is defined by:
-        /// - A numeric range `[min, max]` representing the interval boundaries.
-        /// - An RGBA color `[red, green, blue, alpha]` associated with the interval.
-        /// 
+        /// <list type="bullet"><item><description>A numeric range `[min, max]` representing the interval boundaries.</description></item><item><description>An RGBA color `[red, green, blue, alpha]` associated with the interval.</description></item></list>
         /// The response is a 2D array of interval definitions, where each element is a pair:
-        /// - The first element is an array of two numbers `[min, max]` defining the interval.
-        /// - The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.
-        /// 
+        /// <list type="bullet"><item><description>The first element is an array of two numbers `[min, max]` defining the interval.</description></item><item><description>The second element is an array of four numbers `[red, green, blue, alpha]` defining the RGBA color.</description></item></list>
         /// Example:
         /// ```json
         /// [
@@ -3762,8 +3597,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// ]
         /// ```
         /// This example defines two intervals:
-        /// - The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).
-        /// - The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).
+        /// <list type="bullet"><item><description>The interval `[-2, 0]` is mapped to the color `[0, 0, 0, 0]` (transparent black).</description></item><item><description>The interval `[1, 32]` is mapped to the color `[255, 255, 178, 255]` (opaque yellow).</description></item></list>
         /// </summary>
         /// <param name="classmapName"> classmap name. </param>
         /// <param name="trimStart"> Number of items to trim from the start of the cmap. </param>
@@ -3772,31 +3606,18 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="classmapName"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="classmapName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual async Task<Response<IReadOnlyDictionary<string, BinaryData>>> GetIntervalLegendAsync(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<IReadOnlyList<IList<IList<long>>>>> GetIntervalLegendAsync(string classmapName, int? trimStart = default, int? trimEnd = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(classmapName, nameof(classmapName));
 
             Response result = await GetIntervalLegendAsync(classmapName, trimStart, trimEnd, cancellationToken.ToRequestContext()).ConfigureAwait(false);
-            IDictionary<string, BinaryData> value = new Dictionary<string, BinaryData>();
+            List<IList<IList<long>>> value = new List<IList<IList<long>>>();
             BinaryData data = result.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
-            foreach (var item in document.RootElement.EnumerateObject())
-            {
-                if (item.Value.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(item.Name, null);
-                }
-                else
-                {
-                    value.Add(item.Name, BinaryData.FromString(item.Value.GetRawText()));
-                }
-            }
-            return Response.FromValue((IReadOnlyDictionary<string, BinaryData>)value, result);
+            return Response.FromValue((IReadOnlyList<IList<IList<long>>>)value, result);
         }
 
         /// <summary>
         /// [Protocol Method] Generate a legend image for a given colormap.
-        /// 
         /// If the colormap has non-contiguous values at the beginning or end,
         /// which aren't desired in the output image, they can be trimmed by specifying
         /// the number of values to trim.
@@ -3836,7 +3657,6 @@ namespace Azure.Analytics.PlanetaryComputer
 
         /// <summary>
         /// [Protocol Method] Generate a legend image for a given colormap.
-        /// 
         /// If the colormap has non-contiguous values at the beginning or end,
         /// which aren't desired in the output image, they can be trimmed by specifying
         /// the number of values to trim.
@@ -3876,7 +3696,6 @@ namespace Azure.Analytics.PlanetaryComputer
 
         /// <summary>
         /// Generate a legend image for a given colormap.
-        /// 
         /// If the colormap has non-contiguous values at the beginning or end,
         /// which aren't desired in the output image, they can be trimmed by specifying
         /// the number of values to trim.
@@ -3900,7 +3719,6 @@ namespace Azure.Analytics.PlanetaryComputer
 
         /// <summary>
         /// Generate a legend image for a given colormap.
-        /// 
         /// If the colormap has non-contiguous values at the beginning or end,
         /// which aren't desired in the output image, they can be trimmed by specifying
         /// the number of values to trim.
@@ -4212,28 +4030,21 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="searchId"/>, <paramref name="tileMatrixSetId"/> or <paramref name="collectionId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="searchId"/>, <paramref name="tileMatrixSetId"/> or <paramref name="collectionId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual Response<IReadOnlyList<BinaryData>> GetMosaicsAssetsForTile(string searchId, string tileMatrixSetId, float z, float x, float y, string collectionId, int? scanLimit = default, int? itemsLimit = default, int? timeLimit = default, bool? exitWhenFull = default, bool? skipCovered = default, CancellationToken cancellationToken = default)
+        public virtual Response<IReadOnlyList<TilerAssetGeoJson>> GetMosaicsAssetsForTile(string searchId, string tileMatrixSetId, float z, float x, float y, string collectionId, int? scanLimit = default, int? itemsLimit = default, int? timeLimit = default, bool? exitWhenFull = default, bool? skipCovered = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(searchId, nameof(searchId));
             Argument.AssertNotNullOrEmpty(tileMatrixSetId, nameof(tileMatrixSetId));
             Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
 
             Response result = GetMosaicsAssetsForTile(searchId, tileMatrixSetId, z, x, y, collectionId, scanLimit, itemsLimit, timeLimit, exitWhenFull, skipCovered, cancellationToken.ToRequestContext());
-            List<BinaryData> value = new List<BinaryData>();
+            List<TilerAssetGeoJson> value = new List<TilerAssetGeoJson>();
             BinaryData data = result.Content;
             using JsonDocument document = JsonDocument.Parse(data);
             foreach (var item in document.RootElement.EnumerateArray())
             {
-                if (item.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(null);
-                }
-                else
-                {
-                    value.Add(BinaryData.FromString(item.GetRawText()));
-                }
+                value.Add(TilerAssetGeoJson.DeserializeTilerAssetGeoJson(item, ModelSerializationExtensions.WireOptions));
             }
-            return Response.FromValue((IReadOnlyList<BinaryData>)value, result);
+            return Response.FromValue((IReadOnlyList<TilerAssetGeoJson>)value, result);
         }
 
         /// <summary> Return a list of assets which overlap a given tile. </summary>
@@ -4264,28 +4075,21 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <exception cref="ArgumentNullException"> <paramref name="searchId"/>, <paramref name="tileMatrixSetId"/> or <paramref name="collectionId"/> is null. </exception>
         /// <exception cref="ArgumentException"> <paramref name="searchId"/>, <paramref name="tileMatrixSetId"/> or <paramref name="collectionId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
-        public virtual async Task<Response<IReadOnlyList<BinaryData>>> GetMosaicsAssetsForTileAsync(string searchId, string tileMatrixSetId, float z, float x, float y, string collectionId, int? scanLimit = default, int? itemsLimit = default, int? timeLimit = default, bool? exitWhenFull = default, bool? skipCovered = default, CancellationToken cancellationToken = default)
+        public virtual async Task<Response<IReadOnlyList<TilerAssetGeoJson>>> GetMosaicsAssetsForTileAsync(string searchId, string tileMatrixSetId, float z, float x, float y, string collectionId, int? scanLimit = default, int? itemsLimit = default, int? timeLimit = default, bool? exitWhenFull = default, bool? skipCovered = default, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(searchId, nameof(searchId));
             Argument.AssertNotNullOrEmpty(tileMatrixSetId, nameof(tileMatrixSetId));
             Argument.AssertNotNullOrEmpty(collectionId, nameof(collectionId));
 
             Response result = await GetMosaicsAssetsForTileAsync(searchId, tileMatrixSetId, z, x, y, collectionId, scanLimit, itemsLimit, timeLimit, exitWhenFull, skipCovered, cancellationToken.ToRequestContext()).ConfigureAwait(false);
-            List<BinaryData> value = new List<BinaryData>();
+            List<TilerAssetGeoJson> value = new List<TilerAssetGeoJson>();
             BinaryData data = result.Content;
             using JsonDocument document = JsonDocument.Parse(data);
             foreach (var item in document.RootElement.EnumerateArray())
             {
-                if (item.ValueKind == JsonValueKind.Null)
-                {
-                    value.Add(null);
-                }
-                else
-                {
-                    value.Add(BinaryData.FromString(item.GetRawText()));
-                }
+                value.Add(TilerAssetGeoJson.DeserializeTilerAssetGeoJson(item, ModelSerializationExtensions.WireOptions));
             }
-            return Response.FromValue((IReadOnlyList<BinaryData>)value, result);
+            return Response.FromValue((IReadOnlyList<TilerAssetGeoJson>)value, result);
         }
 
         /// <summary>
@@ -4477,7 +4281,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="tileScale"> Tile scale factor affecting output size. Values &gt; 1 produce larger tiles (e.g., 1=256x256, 2=512x512). </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4547,7 +4351,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="tileScale"> Tile scale factor affecting output size. Values &gt; 1 produce larger tiles (e.g., 1=256x256, 2=512x512). </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4610,7 +4414,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="tileScale"> Tile scale factor affecting output size. Values &gt; 1 produce larger tiles (e.g., 1=256x256, 2=512x512). </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4662,7 +4466,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="tileScale"> Tile scale factor affecting output size. Values &gt; 1 produce larger tiles (e.g., 1=256x256, 2=512x512). </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4728,7 +4532,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4806,7 +4610,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4877,7 +4681,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4937,7 +4741,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="algorithmParams"> Terrain algorithm parameters. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -4986,7 +4790,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -5043,7 +4847,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -5093,7 +4897,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>
@@ -5132,7 +4936,7 @@ namespace Azure.Analytics.PlanetaryComputer
         /// <param name="maxZoom"> Overwrite default maxzoom. </param>
         /// <param name="buffer">
         /// Buffer on each side of the given tile. It must be a multiple of `0.5`. Output
-        /// **tilesize** will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
+        /// <b>tilesize</b> will be expanded to `tilesize + 2 * buffer` (e.g 0.5 = 257x257,
         /// 1.0 = 258x258).
         /// </param>
         /// <param name="colorFormula"> rio-color formula (info: https://github.com/mapbox/rio-color). </param>

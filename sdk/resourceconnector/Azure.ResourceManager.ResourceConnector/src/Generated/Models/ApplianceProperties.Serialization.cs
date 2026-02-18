@@ -16,6 +16,23 @@ namespace Azure.ResourceManager.ResourceConnector.Models
     /// <summary> Properties for an appliance. </summary>
     internal partial class ApplianceProperties : IJsonModel<ApplianceProperties>
     {
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual ApplianceProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ApplianceProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeApplianceProperties(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ApplianceProperties)} does not support reading '{options.Format}' format.");
+            }
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ApplianceProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -68,7 +85,7 @@ namespace Azure.ResourceManager.ResourceConnector.Models
             {
                 writer.WritePropertyName("events"u8);
                 writer.WriteStartArray();
-                foreach (ResourceConnectorEvent item in Events)
+                foreach (ApplianceEvent item in Events)
                 {
                     writer.WriteObjectValue(item, options);
                 }
@@ -121,14 +138,14 @@ namespace Azure.ResourceManager.ResourceConnector.Models
             {
                 return null;
             }
-            ResourceConnectorDistro? distro = default;
+            ApplianceDistro? distro = default;
             AppliancePropertiesInfrastructureConfig infrastructureConfig = default;
             string provisioningState = default;
             string publicKey = default;
-            ResourceConnectorStatus? status = default;
+            ApplianceStatus? status = default;
             string version = default;
-            IReadOnlyList<ResourceConnectorEvent> events = default;
-            ResourceConnectorNetworkProfile networkProfile = default;
+            IReadOnlyList<ApplianceEvent> events = default;
+            ApplianceNetworkProfile networkProfile = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -138,7 +155,7 @@ namespace Azure.ResourceManager.ResourceConnector.Models
                     {
                         continue;
                     }
-                    distro = new ResourceConnectorDistro(prop.Value.GetString());
+                    distro = new ApplianceDistro(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("infrastructureConfig"u8))
@@ -166,7 +183,7 @@ namespace Azure.ResourceManager.ResourceConnector.Models
                     {
                         continue;
                     }
-                    status = new ResourceConnectorStatus(prop.Value.GetString());
+                    status = new ApplianceStatus(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("version"u8))
@@ -180,10 +197,10 @@ namespace Azure.ResourceManager.ResourceConnector.Models
                     {
                         continue;
                     }
-                    List<ResourceConnectorEvent> array = new List<ResourceConnectorEvent>();
+                    List<ApplianceEvent> array = new List<ApplianceEvent>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(ResourceConnectorEvent.DeserializeResourceConnectorEvent(item, options));
+                        array.Add(ApplianceEvent.DeserializeApplianceEvent(item, options));
                     }
                     events = array;
                     continue;
@@ -194,7 +211,7 @@ namespace Azure.ResourceManager.ResourceConnector.Models
                     {
                         continue;
                     }
-                    networkProfile = ResourceConnectorNetworkProfile.DeserializeResourceConnectorNetworkProfile(prop.Value, options);
+                    networkProfile = ApplianceNetworkProfile.DeserializeApplianceNetworkProfile(prop.Value, options);
                     continue;
                 }
                 if (options.Format != "W")
@@ -209,7 +226,7 @@ namespace Azure.ResourceManager.ResourceConnector.Models
                 publicKey,
                 status,
                 version,
-                events ?? new ChangeTrackingList<ResourceConnectorEvent>(),
+                events ?? new ChangeTrackingList<ApplianceEvent>(),
                 networkProfile,
                 additionalBinaryDataProperties);
         }
@@ -233,23 +250,6 @@ namespace Azure.ResourceManager.ResourceConnector.Models
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         ApplianceProperties IPersistableModel<ApplianceProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ApplianceProperties PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ApplianceProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeApplianceProperties(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(ApplianceProperties)} does not support reading '{options.Format}' format.");
-            }
-        }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ApplianceProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
