@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.MongoDBAtlas
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<MongoDBAtlasOrganizationData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerMongoDBAtlasContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(MongoDBAtlasOrganizationData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<MongoDBAtlasOrganizationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        MongoDBAtlasOrganizationData IPersistableModel<MongoDBAtlasOrganizationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (MongoDBAtlasOrganizationData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<MongoDBAtlasOrganizationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="mongoDBAtlasOrganizationData"> The <see cref="MongoDBAtlasOrganizationData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(MongoDBAtlasOrganizationData mongoDBAtlasOrganizationData)
+        {
+            if (mongoDBAtlasOrganizationData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(mongoDBAtlasOrganizationData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="MongoDBAtlasOrganizationData"/> from. </param>
         internal static MongoDBAtlasOrganizationData FromResponse(Response response)
         {
@@ -76,7 +109,22 @@ namespace Azure.ResourceManager.MongoDBAtlas
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -109,11 +157,11 @@ namespace Azure.ResourceManager.MongoDBAtlas
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             MongoDBAtlasOrganizationProperties properties = default;
             ManagedServiceIdentity identity = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -189,7 +237,7 @@ namespace Azure.ResourceManager.MongoDBAtlas
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerMongoDBAtlasContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerMongoDBAtlasContext.Default);
                     continue;
                 }
                 if (options.Format != "W")
@@ -202,46 +250,11 @@ namespace Azure.ResourceManager.MongoDBAtlas
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
-                identity);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<MongoDBAtlasOrganizationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<MongoDBAtlasOrganizationData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerMongoDBAtlasContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(MongoDBAtlasOrganizationData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        MongoDBAtlasOrganizationData IPersistableModel<MongoDBAtlasOrganizationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (MongoDBAtlasOrganizationData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<MongoDBAtlasOrganizationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="mongoDBAtlasOrganizationData"> The <see cref="MongoDBAtlasOrganizationData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(MongoDBAtlasOrganizationData mongoDBAtlasOrganizationData)
-        {
-            if (mongoDBAtlasOrganizationData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(mongoDBAtlasOrganizationData, ModelSerializationExtensions.WireOptions);
-            return content;
+                identity,
+                additionalBinaryDataProperties);
         }
     }
 }

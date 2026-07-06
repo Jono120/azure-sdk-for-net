@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DataReplicationEmailConfigurationData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerRecoveryServicesDataReplicationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DataReplicationEmailConfigurationData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DataReplicationEmailConfigurationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DataReplicationEmailConfigurationData IPersistableModel<DataReplicationEmailConfigurationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DataReplicationEmailConfigurationData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DataReplicationEmailConfigurationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="dataReplicationEmailConfigurationData"> The <see cref="DataReplicationEmailConfigurationData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(DataReplicationEmailConfigurationData dataReplicationEmailConfigurationData)
+        {
+            if (dataReplicationEmailConfigurationData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(dataReplicationEmailConfigurationData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="DataReplicationEmailConfigurationData"/> from. </param>
         internal static DataReplicationEmailConfigurationData FromResponse(Response response)
         {
@@ -67,6 +100,21 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +147,8 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             DataReplicationEmailConfigurationProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,43 +202,8 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DataReplicationEmailConfigurationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DataReplicationEmailConfigurationData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerRecoveryServicesDataReplicationContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DataReplicationEmailConfigurationData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DataReplicationEmailConfigurationData IPersistableModel<DataReplicationEmailConfigurationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DataReplicationEmailConfigurationData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DataReplicationEmailConfigurationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="dataReplicationEmailConfigurationData"> The <see cref="DataReplicationEmailConfigurationData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(DataReplicationEmailConfigurationData dataReplicationEmailConfigurationData)
-        {
-            if (dataReplicationEmailConfigurationData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(dataReplicationEmailConfigurationData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

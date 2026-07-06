@@ -5,13 +5,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Evaluation
 {
     /// <summary> Represents a target specifying an Azure AI model for operations requiring model selection. </summary>
-    public partial class AzureAIModelTarget : Target
+    public partial class AzureAIModelTarget : EvaluationTarget
     {
         /// <summary> Initializes a new instance of <see cref="AzureAIModelTarget"/>. </summary>
-        internal AzureAIModelTarget() : base("azure_ai_model")
+        public AzureAIModelTarget() : base("azure_ai_model")
         {
         }
 
@@ -27,9 +27,9 @@ namespace Azure.AI.Projects
         }
 
         /// <summary> The unique identifier of the Azure AI model. </summary>
-        public string Model { get; }
+        public string Model { get; set; }
 
         /// <summary> The parameters used to control the sampling behavior of the model during text generation. </summary>
-        public ModelSamplingParams SamplingParams { get; }
+        public ModelSamplingParams SamplingParams { get; set; }
     }
 }

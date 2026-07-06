@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.Avs
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<WorkloadNetworkPublicIPData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerAvsContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(WorkloadNetworkPublicIPData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<WorkloadNetworkPublicIPData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        WorkloadNetworkPublicIPData IPersistableModel<WorkloadNetworkPublicIPData>.Create(BinaryData data, ModelReaderWriterOptions options) => (WorkloadNetworkPublicIPData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<WorkloadNetworkPublicIPData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="workloadNetworkPublicIPData"> The <see cref="WorkloadNetworkPublicIPData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(WorkloadNetworkPublicIPData workloadNetworkPublicIPData)
+        {
+            if (workloadNetworkPublicIPData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(workloadNetworkPublicIPData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="WorkloadNetworkPublicIPData"/> from. </param>
         internal static WorkloadNetworkPublicIPData FromResponse(Response response)
         {
@@ -67,6 +100,21 @@ namespace Azure.ResourceManager.Avs
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +147,8 @@ namespace Azure.ResourceManager.Avs
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             WorkloadNetworkPublicIPProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,43 +202,8 @@ namespace Azure.ResourceManager.Avs
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<WorkloadNetworkPublicIPData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<WorkloadNetworkPublicIPData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerAvsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(WorkloadNetworkPublicIPData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        WorkloadNetworkPublicIPData IPersistableModel<WorkloadNetworkPublicIPData>.Create(BinaryData data, ModelReaderWriterOptions options) => (WorkloadNetworkPublicIPData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<WorkloadNetworkPublicIPData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="workloadNetworkPublicIPData"> The <see cref="WorkloadNetworkPublicIPData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(WorkloadNetworkPublicIPData workloadNetworkPublicIPData)
-        {
-            if (workloadNetworkPublicIPData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(workloadNetworkPublicIPData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

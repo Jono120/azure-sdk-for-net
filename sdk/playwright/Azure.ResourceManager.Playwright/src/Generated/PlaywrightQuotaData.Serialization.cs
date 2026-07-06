@@ -37,6 +37,29 @@ namespace Azure.ResourceManager.Playwright
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<PlaywrightQuotaData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerPlaywrightContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(PlaywrightQuotaData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<PlaywrightQuotaData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        PlaywrightQuotaData IPersistableModel<PlaywrightQuotaData>.Create(BinaryData data, ModelReaderWriterOptions options) => (PlaywrightQuotaData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<PlaywrightQuotaData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="PlaywrightQuotaData"/> from. </param>
         internal static PlaywrightQuotaData FromResponse(Response response)
         {
@@ -67,6 +90,21 @@ namespace Azure.ResourceManager.Playwright
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +137,8 @@ namespace Azure.ResourceManager.Playwright
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             PlaywrightQuotaProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,31 +192,8 @@ namespace Azure.ResourceManager.Playwright
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
+                properties,
+                additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<PlaywrightQuotaData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PlaywrightQuotaData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerPlaywrightContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(PlaywrightQuotaData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        PlaywrightQuotaData IPersistableModel<PlaywrightQuotaData>.Create(BinaryData data, ModelReaderWriterOptions options) => (PlaywrightQuotaData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<PlaywrightQuotaData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

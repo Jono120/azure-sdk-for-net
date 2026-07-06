@@ -26,7 +26,10 @@ namespace Azure.Data.SchemaRegistry
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/$schemaGroups", false);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier200);
             Request request = message.Request;
             request.Uri = uri;
@@ -46,7 +49,10 @@ namespace Azure.Data.SchemaRegistry
             {
                 uri.Reset(new Uri(_endpoint, nextPage));
             }
-            uri.UpdateQuery("api-version", _apiVersion);
+            if (_apiVersion != null)
+            {
+                uri.UpdateQuery("api-version", _apiVersion);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier200);
             Request request = message.Request;
             request.Uri = uri;
@@ -64,7 +70,10 @@ namespace Azure.Data.SchemaRegistry
             uri.AppendPath("/schemas/", false);
             uri.AppendPath(schemaName, true);
             uri.AppendPath("/versions", false);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier200);
             Request request = message.Request;
             request.Uri = uri;
@@ -84,7 +93,10 @@ namespace Azure.Data.SchemaRegistry
             {
                 uri.Reset(new Uri(_endpoint, nextPage));
             }
-            uri.UpdateQuery("api-version", _apiVersion);
+            if (_apiVersion != null)
+            {
+                uri.UpdateQuery("api-version", _apiVersion);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier200);
             Request request = message.Request;
             request.Uri = uri;
@@ -99,7 +111,10 @@ namespace Azure.Data.SchemaRegistry
             uri.Reset(_endpoint);
             uri.AppendPath("/$schemaGroups/$schemas/", false);
             uri.AppendPath(id, true);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier200);
             Request request = message.Request;
             request.Uri = uri;
@@ -118,7 +133,10 @@ namespace Azure.Data.SchemaRegistry
             uri.AppendPath(schemaName, true);
             uri.AppendPath("/versions/", false);
             uri.AppendPath(schemaVersion.ToString(), true);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier200);
             Request request = message.Request;
             request.Uri = uri;
@@ -127,7 +145,7 @@ namespace Azure.Data.SchemaRegistry
             return message;
         }
 
-        internal HttpMessage CreateGetSchemaPropertiesByContentRequest(string groupName, string schemaName, string contentType, RequestContent content, RequestContext context)
+        internal HttpMessage CreateGetSchemaPropertiesByContentRequest(string groupName, string schemaName, RequestContent content, string contentType, RequestContext context)
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
@@ -136,7 +154,10 @@ namespace Azure.Data.SchemaRegistry
             uri.AppendPath("/schemas/", false);
             uri.AppendPath(schemaName, true);
             uri.AppendPath(":get-id", false);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier204);
             Request request = message.Request;
             request.Uri = uri;
@@ -146,7 +167,7 @@ namespace Azure.Data.SchemaRegistry
             return message;
         }
 
-        internal HttpMessage CreateRegisterSchemaRequest(string groupName, string schemaName, string contentType, RequestContent content, RequestContext context)
+        internal HttpMessage CreateRegisterSchemaRequest(string groupName, string schemaName, RequestContent content, string contentType, RequestContext context)
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
@@ -154,7 +175,10 @@ namespace Azure.Data.SchemaRegistry
             uri.AppendPath(groupName, true);
             uri.AppendPath("/schemas/", false);
             uri.AppendPath(schemaName, true);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier204);
             Request request = message.Request;
             request.Uri = uri;

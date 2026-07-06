@@ -36,6 +36,39 @@ namespace Azure.ResourceManager.CloudHealth.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<HealthModelPatch>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerCloudHealthContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(HealthModelPatch)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<HealthModelPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        HealthModelPatch IPersistableModel<HealthModelPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<HealthModelPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="healthModelPatch"> The <see cref="HealthModelPatch"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(HealthModelPatch healthModelPatch)
+        {
+            if (healthModelPatch == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(healthModelPatch, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<HealthModelPatch>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -57,7 +90,7 @@ namespace Azure.ResourceManager.CloudHealth.Models
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
             }
             if (Optional.IsCollectionDefined(Tags))
             {
@@ -74,11 +107,6 @@ namespace Azure.ResourceManager.CloudHealth.Models
                     writer.WriteStringValue(item.Value);
                 }
                 writer.WriteEndObject();
-            }
-            if (Optional.IsDefined(Properties))
-            {
-                writer.WritePropertyName("properties"u8);
-                writer.WriteObjectValue(Properties, options);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -124,7 +152,6 @@ namespace Azure.ResourceManager.CloudHealth.Models
             }
             ManagedServiceIdentity identity = default;
             IDictionary<string, string> tags = default;
-            HealthModelUpdateProperties properties = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -134,7 +161,7 @@ namespace Azure.ResourceManager.CloudHealth.Models
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerCloudHealthContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerCloudHealthContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("tags"u8))
@@ -158,56 +185,12 @@ namespace Azure.ResourceManager.CloudHealth.Models
                     tags = dictionary;
                     continue;
                 }
-                if (prop.NameEquals("properties"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    properties = HealthModelUpdateProperties.DeserializeHealthModelUpdateProperties(prop.Value, options);
-                    continue;
-                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new HealthModelPatch(identity, tags ?? new ChangeTrackingDictionary<string, string>(), properties, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<HealthModelPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<HealthModelPatch>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerCloudHealthContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(HealthModelPatch)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        HealthModelPatch IPersistableModel<HealthModelPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<HealthModelPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="healthModelPatch"> The <see cref="HealthModelPatch"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(HealthModelPatch healthModelPatch)
-        {
-            if (healthModelPatch == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(healthModelPatch, ModelSerializationExtensions.WireOptions);
-            return content;
+            return new HealthModelPatch(identity, tags ?? new ChangeTrackingDictionary<string, string>(), additionalBinaryDataProperties);
         }
     }
 }

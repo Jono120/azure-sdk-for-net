@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.StorageMover
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<StorageMoverEndpointData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageMoverContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(StorageMoverEndpointData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<StorageMoverEndpointData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        StorageMoverEndpointData IPersistableModel<StorageMoverEndpointData>.Create(BinaryData data, ModelReaderWriterOptions options) => (StorageMoverEndpointData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<StorageMoverEndpointData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="storageMoverEndpointData"> The <see cref="StorageMoverEndpointData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(StorageMoverEndpointData storageMoverEndpointData)
+        {
+            if (storageMoverEndpointData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(storageMoverEndpointData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="StorageMoverEndpointData"/> from. </param>
         internal static StorageMoverEndpointData FromResponse(Response response)
         {
@@ -73,7 +106,22 @@ namespace Azure.ResourceManager.StorageMover
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -106,9 +154,9 @@ namespace Azure.ResourceManager.StorageMover
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             EndpointBaseProperties properties = default;
             ManagedServiceIdentity identity = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,7 +202,7 @@ namespace Azure.ResourceManager.StorageMover
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerStorageMoverContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerStorageMoverContext.Default);
                     continue;
                 }
                 if (options.Format != "W")
@@ -167,44 +215,9 @@ namespace Azure.ResourceManager.StorageMover
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 properties,
-                identity);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<StorageMoverEndpointData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<StorageMoverEndpointData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageMoverContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(StorageMoverEndpointData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        StorageMoverEndpointData IPersistableModel<StorageMoverEndpointData>.Create(BinaryData data, ModelReaderWriterOptions options) => (StorageMoverEndpointData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<StorageMoverEndpointData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="storageMoverEndpointData"> The <see cref="StorageMoverEndpointData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(StorageMoverEndpointData storageMoverEndpointData)
-        {
-            if (storageMoverEndpointData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(storageMoverEndpointData, ModelSerializationExtensions.WireOptions);
-            return content;
+                identity,
+                additionalBinaryDataProperties);
         }
     }
 }

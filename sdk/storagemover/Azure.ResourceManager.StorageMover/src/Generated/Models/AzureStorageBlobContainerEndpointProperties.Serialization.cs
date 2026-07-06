@@ -38,6 +38,29 @@ namespace Azure.ResourceManager.StorageMover.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<AzureStorageBlobContainerEndpointProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageMoverContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(AzureStorageBlobContainerEndpointProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<AzureStorageBlobContainerEndpointProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        AzureStorageBlobContainerEndpointProperties IPersistableModel<AzureStorageBlobContainerEndpointProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => (AzureStorageBlobContainerEndpointProperties)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<AzureStorageBlobContainerEndpointProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<AzureStorageBlobContainerEndpointProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -90,6 +113,7 @@ namespace Azure.ResourceManager.StorageMover.Models
             }
             EndpointType endpointType = default;
             string description = default;
+            StorageMoverEndpointKind? endpointKind = default;
             StorageMoverProvisioningState? provisioningState = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             string storageAccountResourceId = default;
@@ -104,6 +128,15 @@ namespace Azure.ResourceManager.StorageMover.Models
                 if (prop.NameEquals("description"u8))
                 {
                     description = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("endpointKind"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    endpointKind = new StorageMoverEndpointKind(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("provisioningState"u8))
@@ -133,33 +166,11 @@ namespace Azure.ResourceManager.StorageMover.Models
             return new AzureStorageBlobContainerEndpointProperties(
                 endpointType,
                 description,
+                endpointKind,
                 provisioningState,
                 additionalBinaryDataProperties,
                 storageAccountResourceId,
                 blobContainerName);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<AzureStorageBlobContainerEndpointProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<AzureStorageBlobContainerEndpointProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageMoverContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(AzureStorageBlobContainerEndpointProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        AzureStorageBlobContainerEndpointProperties IPersistableModel<AzureStorageBlobContainerEndpointProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => (AzureStorageBlobContainerEndpointProperties)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<AzureStorageBlobContainerEndpointProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

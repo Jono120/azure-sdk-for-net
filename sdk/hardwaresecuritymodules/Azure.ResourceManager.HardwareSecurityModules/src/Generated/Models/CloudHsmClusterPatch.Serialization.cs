@@ -36,6 +36,39 @@ namespace Azure.ResourceManager.HardwareSecurityModules.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<CloudHsmClusterPatch>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHardwareSecurityModulesContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(CloudHsmClusterPatch)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<CloudHsmClusterPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        CloudHsmClusterPatch IPersistableModel<CloudHsmClusterPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<CloudHsmClusterPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="cloudHsmClusterPatch"> The <see cref="CloudHsmClusterPatch"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(CloudHsmClusterPatch cloudHsmClusterPatch)
+        {
+            if (cloudHsmClusterPatch == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(cloudHsmClusterPatch, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<CloudHsmClusterPatch>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -73,7 +106,7 @@ namespace Azure.ResourceManager.HardwareSecurityModules.Models
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -149,7 +182,7 @@ namespace Azure.ResourceManager.HardwareSecurityModules.Models
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerHardwareSecurityModulesContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerHardwareSecurityModulesContext.Default);
                     continue;
                 }
                 if (options.Format != "W")
@@ -158,41 +191,6 @@ namespace Azure.ResourceManager.HardwareSecurityModules.Models
                 }
             }
             return new CloudHsmClusterPatch(tags ?? new ChangeTrackingDictionary<string, string>(), identity, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<CloudHsmClusterPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<CloudHsmClusterPatch>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHardwareSecurityModulesContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(CloudHsmClusterPatch)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        CloudHsmClusterPatch IPersistableModel<CloudHsmClusterPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<CloudHsmClusterPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="cloudHsmClusterPatch"> The <see cref="CloudHsmClusterPatch"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(CloudHsmClusterPatch cloudHsmClusterPatch)
-        {
-            if (cloudHsmClusterPatch == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(cloudHsmClusterPatch, ModelSerializationExtensions.WireOptions);
-            return content;
         }
     }
 }

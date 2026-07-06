@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.Hci.Vm
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<HciVmNetworkSecurityGroupData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHciVmContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(HciVmNetworkSecurityGroupData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<HciVmNetworkSecurityGroupData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        HciVmNetworkSecurityGroupData IPersistableModel<HciVmNetworkSecurityGroupData>.Create(BinaryData data, ModelReaderWriterOptions options) => (HciVmNetworkSecurityGroupData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<HciVmNetworkSecurityGroupData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="hciVmNetworkSecurityGroupData"> The <see cref="HciVmNetworkSecurityGroupData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(HciVmNetworkSecurityGroupData hciVmNetworkSecurityGroupData)
+        {
+            if (hciVmNetworkSecurityGroupData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(hciVmNetworkSecurityGroupData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="HciVmNetworkSecurityGroupData"/> from. </param>
         internal static HciVmNetworkSecurityGroupData FromResponse(Response response)
         {
@@ -81,7 +114,22 @@ namespace Azure.ResourceManager.Hci.Vm
             if (options.Format != "W" && Optional.IsDefined(ETag))
             {
                 writer.WritePropertyName("eTag"u8);
-                writer.WriteStringValue(ETag);
+                writer.WriteStringValue(ETag.Value.ToString());
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -114,12 +162,12 @@ namespace Azure.ResourceManager.Hci.Vm
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             HciVmNetworkSecurityGroupProperties properties = default;
             HciVmExtendedLocation extendedLocation = default;
-            string eTag = default;
+            ETag? eTag = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -200,7 +248,11 @@ namespace Azure.ResourceManager.Hci.Vm
                 }
                 if (prop.NameEquals("eTag"u8))
                 {
-                    eTag = prop.Value.GetString();
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    eTag = new ETag(prop.Value.GetString());
                     continue;
                 }
                 if (options.Format != "W")
@@ -213,47 +265,12 @@ namespace Azure.ResourceManager.Hci.Vm
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
                 extendedLocation,
-                eTag);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<HciVmNetworkSecurityGroupData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<HciVmNetworkSecurityGroupData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHciVmContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(HciVmNetworkSecurityGroupData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        HciVmNetworkSecurityGroupData IPersistableModel<HciVmNetworkSecurityGroupData>.Create(BinaryData data, ModelReaderWriterOptions options) => (HciVmNetworkSecurityGroupData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<HciVmNetworkSecurityGroupData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="hciVmNetworkSecurityGroupData"> The <see cref="HciVmNetworkSecurityGroupData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(HciVmNetworkSecurityGroupData hciVmNetworkSecurityGroupData)
-        {
-            if (hciVmNetworkSecurityGroupData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(hciVmNetworkSecurityGroupData, ModelSerializationExtensions.WireOptions);
-            return content;
+                eTag,
+                additionalBinaryDataProperties);
         }
     }
 }

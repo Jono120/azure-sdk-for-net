@@ -31,16 +31,16 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         /// <param name="name"> The name of the resource. </param>
         /// <param name="resourceType"> The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts". </param>
         /// <param name="systemData"> Azure Resource Manager metadata containing createdBy and modifiedBy information. </param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="properties"> Deployment stack properties. </param>
         /// <param name="location"> The geo-location where the resource lives. Required for subscription and management group scoped stacks. The location is inherited from the resource group for resource group scoped stacks. </param>
         /// <param name="tags"> Resource tags. </param>
-        internal DeploymentStackData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, IDictionary<string, BinaryData> additionalBinaryDataProperties, DeploymentStackProperties properties, AzureLocation? location, IDictionary<string, string> tags) : base(id, name, resourceType, systemData)
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal DeploymentStackData(ResourceIdentifier id, string name, ResourceType resourceType, SystemData systemData, DeploymentStackProperties properties, AzureLocation? location, IDictionary<string, string> tags, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(id, name, resourceType, systemData)
         {
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
             Properties = properties;
             Location = location;
             Tags = tags;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> Deployment stack properties. </summary>
@@ -100,7 +100,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.Parameters;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.Parameters;
             }
         }
 
@@ -126,7 +130,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.ExtensionConfigs;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.ExtensionConfigs;
             }
         }
 
@@ -135,7 +143,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.ExternalInputs;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.ExternalInputs;
             }
         }
 
@@ -144,7 +156,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.ExternalInputDefinitions;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.ExternalInputDefinitions;
             }
         }
 
@@ -247,7 +263,7 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
                 {
                     Properties = new DeploymentStackProperties();
                 }
-                Properties.ValidationLevel = value.Value;
+                Properties.ValidationLevel = value;
             }
         }
 
@@ -264,7 +280,7 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
                 {
                     Properties = new DeploymentStackProperties();
                 }
-                Properties.BypassStackOutOfSyncError = value.Value;
+                Properties.BypassStackOutOfSyncError = value;
             }
         }
 
@@ -273,7 +289,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.DetachedResources;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.DetachedResources;
             }
         }
 
@@ -282,7 +302,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.DeletedResources;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.DeletedResources;
             }
         }
 
@@ -291,7 +315,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.FailedResources;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.FailedResources;
             }
         }
 
@@ -300,7 +328,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.Resources;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.Resources;
             }
         }
 
@@ -309,7 +341,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
         {
             get
             {
-                return Properties is null ? default : Properties.DeploymentExtensions;
+                if (Properties is null)
+                {
+                    Properties = new DeploymentStackProperties();
+                }
+                return Properties.DeploymentExtensions;
             }
         }
 

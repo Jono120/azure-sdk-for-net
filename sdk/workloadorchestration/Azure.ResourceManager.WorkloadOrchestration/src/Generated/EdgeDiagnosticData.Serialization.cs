@@ -43,6 +43,39 @@ namespace Azure.ResourceManager.WorkloadOrchestration
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<EdgeDiagnosticData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerWorkloadOrchestrationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(EdgeDiagnosticData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<EdgeDiagnosticData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        EdgeDiagnosticData IPersistableModel<EdgeDiagnosticData>.Create(BinaryData data, ModelReaderWriterOptions options) => (EdgeDiagnosticData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<EdgeDiagnosticData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="edgeDiagnosticData"> The <see cref="EdgeDiagnosticData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(EdgeDiagnosticData edgeDiagnosticData)
+        {
+            if (edgeDiagnosticData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(edgeDiagnosticData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="EdgeDiagnosticData"/> from. </param>
         internal static EdgeDiagnosticData FromResponse(Response response)
         {
@@ -84,6 +117,21 @@ namespace Azure.ResourceManager.WorkloadOrchestration
                 writer.WritePropertyName("eTag"u8);
                 writer.WriteStringValue(ETag.Value.ToString());
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -115,12 +163,12 @@ namespace Azure.ResourceManager.WorkloadOrchestration
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             EdgeDiagnosticProperties properties = default;
             ExtendedLocation extendedLocation = default;
             ETag? eTag = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -218,47 +266,12 @@ namespace Azure.ResourceManager.WorkloadOrchestration
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
                 extendedLocation,
-                eTag);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<EdgeDiagnosticData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EdgeDiagnosticData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerWorkloadOrchestrationContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(EdgeDiagnosticData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EdgeDiagnosticData IPersistableModel<EdgeDiagnosticData>.Create(BinaryData data, ModelReaderWriterOptions options) => (EdgeDiagnosticData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<EdgeDiagnosticData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="edgeDiagnosticData"> The <see cref="EdgeDiagnosticData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(EdgeDiagnosticData edgeDiagnosticData)
-        {
-            if (edgeDiagnosticData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(edgeDiagnosticData, ModelSerializationExtensions.WireOptions);
-            return content;
+                eTag,
+                additionalBinaryDataProperties);
         }
     }
 }

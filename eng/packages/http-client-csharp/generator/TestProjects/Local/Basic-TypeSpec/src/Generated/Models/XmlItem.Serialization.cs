@@ -7,7 +7,6 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
@@ -51,7 +50,7 @@ namespace BasicTypeSpec
                     {
                         using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            Write(writer, options, "Item");
+                            WriteXml(writer, options, "Item");
                         }
                         if (stream.Position > int.MaxValue)
                         {
@@ -80,7 +79,7 @@ namespace BasicTypeSpec
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
             if (nameHint != null)
             {
@@ -97,7 +96,7 @@ namespace BasicTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<XmlItem>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -128,7 +127,6 @@ namespace BasicTypeSpec
             string itemName = default;
             int itemValue = default;
             string itemId = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
@@ -154,11 +152,11 @@ namespace BasicTypeSpec
                     continue;
                 }
             }
-            return new XmlItem(itemName, itemValue, itemId, additionalBinaryDataProperties);
+            return new XmlItem(itemName, itemValue, itemId);
         }
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        void IXmlSerializable.Write(XmlWriter writer, string nameHint) => Write(writer, ModelSerializationExtensions.WireOptions, nameHint);
+        void IXmlSerializable.Write(XmlWriter writer, string nameHint) => WriteXml(writer, ModelSerializationExtensions.WireOptions, nameHint);
     }
 }

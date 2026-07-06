@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.ComputeLimit
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ComputeLimitSharedLimitData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeLimitContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ComputeLimitSharedLimitData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ComputeLimitSharedLimitData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ComputeLimitSharedLimitData IPersistableModel<ComputeLimitSharedLimitData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ComputeLimitSharedLimitData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ComputeLimitSharedLimitData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="computeLimitSharedLimitData"> The <see cref="ComputeLimitSharedLimitData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ComputeLimitSharedLimitData computeLimitSharedLimitData)
+        {
+            if (computeLimitSharedLimitData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(computeLimitSharedLimitData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ComputeLimitSharedLimitData"/> from. </param>
         internal static ComputeLimitSharedLimitData FromResponse(Response response)
         {
@@ -67,6 +100,21 @@ namespace Azure.ResourceManager.ComputeLimit
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +147,8 @@ namespace Azure.ResourceManager.ComputeLimit
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             ComputeLimitSharedLimitProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,43 +202,8 @@ namespace Azure.ResourceManager.ComputeLimit
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ComputeLimitSharedLimitData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ComputeLimitSharedLimitData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeLimitContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ComputeLimitSharedLimitData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ComputeLimitSharedLimitData IPersistableModel<ComputeLimitSharedLimitData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ComputeLimitSharedLimitData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ComputeLimitSharedLimitData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="computeLimitSharedLimitData"> The <see cref="ComputeLimitSharedLimitData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ComputeLimitSharedLimitData computeLimitSharedLimitData)
-        {
-            if (computeLimitSharedLimitData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(computeLimitSharedLimitData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

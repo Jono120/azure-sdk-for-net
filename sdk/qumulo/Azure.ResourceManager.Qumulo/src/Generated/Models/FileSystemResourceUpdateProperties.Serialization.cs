@@ -34,6 +34,29 @@ namespace Azure.ResourceManager.Qumulo.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<FileSystemResourceUpdateProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerQumuloContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(FileSystemResourceUpdateProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<FileSystemResourceUpdateProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        FileSystemResourceUpdateProperties IPersistableModel<FileSystemResourceUpdateProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<FileSystemResourceUpdateProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<FileSystemResourceUpdateProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -66,6 +89,11 @@ namespace Azure.ResourceManager.Qumulo.Models
             {
                 writer.WritePropertyName("delegatedSubnetId"u8);
                 writer.WriteStringValue(DelegatedSubnetId);
+            }
+            if (Optional.IsDefined(PerformanceTier))
+            {
+                writer.WritePropertyName("performanceTier"u8);
+                writer.WriteStringValue(PerformanceTier);
             }
             if (Optional.IsDefined(ClusterLoginUri))
             {
@@ -132,6 +160,7 @@ namespace Azure.ResourceManager.Qumulo.Models
             MarketplaceDetails marketplaceDetails = default;
             QumuloUserDetails userDetails = default;
             ResourceIdentifier delegatedSubnetId = default;
+            string performanceTier = default;
             Uri clusterLoginUri = default;
             IList<string> privateIPs = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
@@ -164,13 +193,18 @@ namespace Azure.ResourceManager.Qumulo.Models
                     delegatedSubnetId = new ResourceIdentifier(prop.Value.GetString());
                     continue;
                 }
+                if (prop.NameEquals("performanceTier"u8))
+                {
+                    performanceTier = prop.Value.GetString();
+                    continue;
+                }
                 if (prop.NameEquals("clusterLoginUri"u8))
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
                         continue;
                     }
-                    clusterLoginUri = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
+                    clusterLoginUri = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString(), UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if (prop.NameEquals("privateIPs"u8))
@@ -203,32 +237,10 @@ namespace Azure.ResourceManager.Qumulo.Models
                 marketplaceDetails,
                 userDetails,
                 delegatedSubnetId,
+                performanceTier,
                 clusterLoginUri,
                 privateIPs ?? new ChangeTrackingList<string>(),
                 additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<FileSystemResourceUpdateProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FileSystemResourceUpdateProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerQumuloContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(FileSystemResourceUpdateProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        FileSystemResourceUpdateProperties IPersistableModel<FileSystemResourceUpdateProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<FileSystemResourceUpdateProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

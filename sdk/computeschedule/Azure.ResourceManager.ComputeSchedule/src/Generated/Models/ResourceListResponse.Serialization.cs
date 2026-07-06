@@ -39,6 +39,29 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ResourceListResponse>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeScheduleContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ResourceListResponse)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ResourceListResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ResourceListResponse IPersistableModel<ResourceListResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ResourceListResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ResourceListResponse"/> from. </param>
         internal static ResourceListResponse FromResponse(Response response)
         {
@@ -66,7 +89,7 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStartArray();
-            foreach (ScheduledActionResourceData item in Value)
+            foreach (ScheduledActionResourceDetails item in Value)
             {
                 writer.WriteObjectValue(item, options);
             }
@@ -118,17 +141,17 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             {
                 return null;
             }
-            IList<ScheduledActionResourceData> value = default;
+            IList<ScheduledActionResourceDetails> value = default;
             Uri nextLink = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("value"u8))
                 {
-                    List<ScheduledActionResourceData> array = new List<ScheduledActionResourceData>();
+                    List<ScheduledActionResourceDetails> array = new List<ScheduledActionResourceDetails>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(ScheduledActionResourceData.DeserializeScheduledActionResourceData(item, options));
+                        array.Add(ScheduledActionResourceDetails.DeserializeScheduledActionResourceDetails(item, options));
                     }
                     value = array;
                     continue;
@@ -139,7 +162,7 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
                     {
                         continue;
                     }
-                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString(), UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if (options.Format != "W")
@@ -149,28 +172,5 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             }
             return new ResourceListResponse(value, nextLink, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ResourceListResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ResourceListResponse>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeScheduleContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ResourceListResponse)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ResourceListResponse IPersistableModel<ResourceListResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ResourceListResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

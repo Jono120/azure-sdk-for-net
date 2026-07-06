@@ -36,6 +36,29 @@ namespace Azure.ResourceManager.DevOpsInfrastructure.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DevOpsImageVersion>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDevOpsInfrastructureContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DevOpsImageVersion)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DevOpsImageVersion>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DevOpsImageVersion IPersistableModel<DevOpsImageVersion>.Create(BinaryData data, ModelReaderWriterOptions options) => (DevOpsImageVersion)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DevOpsImageVersion>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DevOpsImageVersion>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -59,6 +82,21 @@ namespace Azure.ResourceManager.DevOpsInfrastructure.Models
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -91,8 +129,8 @@ namespace Azure.ResourceManager.DevOpsInfrastructure.Models
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             ImageVersionProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -146,31 +184,8 @@ namespace Azure.ResourceManager.DevOpsInfrastructure.Models
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
+                properties,
+                additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DevOpsImageVersion>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DevOpsImageVersion>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDevOpsInfrastructureContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DevOpsImageVersion)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DevOpsImageVersion IPersistableModel<DevOpsImageVersion>.Create(BinaryData data, ModelReaderWriterOptions options) => (DevOpsImageVersion)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DevOpsImageVersion>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -7,8 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using Azure.AI.Projects;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Evaluation
 {
     /// <summary> Evaluator Definition. </summary>
     public partial class EvaluatorVersion : IJsonModel<EvaluatorVersion>
@@ -124,8 +125,23 @@ namespace Azure.AI.Projects
                 writer.WriteStringValue(item.ToString());
             }
             writer.WriteEndArray();
+            if (Optional.IsCollectionDefined(SupportedEvaluationLevels))
+            {
+                writer.WritePropertyName("supported_evaluation_levels"u8);
+                writer.WriteStartArray();
+                foreach (ProjectsEvaluationLevel item in SupportedEvaluationLevels)
+                {
+                    writer.WriteStringValue(item.ToString());
+                }
+                writer.WriteEndArray();
+            }
             writer.WritePropertyName("definition"u8);
             writer.WriteObjectValue(Definition, options);
+            if (options.Format != "W" && Optional.IsDefined(GenerationArtifacts))
+            {
+                writer.WritePropertyName("generation_artifacts"u8);
+                writer.WriteObjectValue(GenerationArtifacts, options);
+            }
             if (options.Format != "W")
             {
                 writer.WritePropertyName("created_by"u8);
@@ -223,7 +239,9 @@ namespace Azure.AI.Projects
             IDictionary<string, string> metadata = default;
             EvaluatorType evaluatorType = default;
             IList<EvaluatorCategory> categories = default;
+            IList<ProjectsEvaluationLevel> supportedEvaluationLevels = default;
             EvaluatorDefinition definition = default;
+            EvaluatorGenerationArtifacts generationArtifacts = default;
             string createdBy = default;
             string createdAt = default;
             string modifiedAt = default;
@@ -276,9 +294,32 @@ namespace Azure.AI.Projects
                     categories = array;
                     continue;
                 }
+                if (prop.NameEquals("supported_evaluation_levels"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<ProjectsEvaluationLevel> array = new List<ProjectsEvaluationLevel>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(new ProjectsEvaluationLevel(item.GetString()));
+                    }
+                    supportedEvaluationLevels = array;
+                    continue;
+                }
                 if (prop.NameEquals("definition"u8))
                 {
                     definition = EvaluatorDefinition.DeserializeEvaluatorDefinition(prop.Value, options);
+                    continue;
+                }
+                if (prop.NameEquals("generation_artifacts"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    generationArtifacts = EvaluatorGenerationArtifacts.DeserializeEvaluatorGenerationArtifacts(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("created_by"u8))
@@ -347,7 +388,9 @@ namespace Azure.AI.Projects
                 metadata ?? new ChangeTrackingDictionary<string, string>(),
                 evaluatorType,
                 categories,
+                supportedEvaluationLevels ?? new ChangeTrackingList<ProjectsEvaluationLevel>(),
                 definition,
+                generationArtifacts,
                 createdBy,
                 createdAt,
                 modifiedAt,

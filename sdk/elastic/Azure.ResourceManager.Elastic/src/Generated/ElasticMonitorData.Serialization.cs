@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.Elastic
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ElasticMonitorData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerElasticContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ElasticMonitorData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ElasticMonitorData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ElasticMonitorData IPersistableModel<ElasticMonitorData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ElasticMonitorData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ElasticMonitorData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="elasticMonitorData"> The <see cref="ElasticMonitorData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ElasticMonitorData elasticMonitorData)
+        {
+            if (elasticMonitorData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(elasticMonitorData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ElasticMonitorData"/> from. </param>
         internal static ElasticMonitorData FromResponse(Response response)
         {
@@ -86,7 +119,22 @@ namespace Azure.ResourceManager.Elastic
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -119,13 +167,13 @@ namespace Azure.ResourceManager.Elastic
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             ElasticMonitorProperties properties = default;
             string kind = default;
             ElasticSku sku = default;
             ManagedServiceIdentity identity = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -215,7 +263,7 @@ namespace Azure.ResourceManager.Elastic
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerElasticContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerElasticContext.Default);
                     continue;
                 }
                 if (options.Format != "W")
@@ -228,48 +276,13 @@ namespace Azure.ResourceManager.Elastic
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
                 kind,
                 sku,
-                identity);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ElasticMonitorData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ElasticMonitorData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerElasticContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ElasticMonitorData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ElasticMonitorData IPersistableModel<ElasticMonitorData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ElasticMonitorData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ElasticMonitorData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="elasticMonitorData"> The <see cref="ElasticMonitorData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ElasticMonitorData elasticMonitorData)
-        {
-            if (elasticMonitorData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(elasticMonitorData, ModelSerializationExtensions.WireOptions);
-            return content;
+                identity,
+                additionalBinaryDataProperties);
         }
     }
 }

@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.ServiceFabricManagedClusters
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ServiceFabricManagedApplicationData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerServiceFabricManagedClustersContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ServiceFabricManagedApplicationData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ServiceFabricManagedApplicationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ServiceFabricManagedApplicationData IPersistableModel<ServiceFabricManagedApplicationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ServiceFabricManagedApplicationData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ServiceFabricManagedApplicationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="serviceFabricManagedApplicationData"> The <see cref="ServiceFabricManagedApplicationData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ServiceFabricManagedApplicationData serviceFabricManagedApplicationData)
+        {
+            if (serviceFabricManagedApplicationData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(serviceFabricManagedApplicationData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ServiceFabricManagedApplicationData"/> from. </param>
         internal static ServiceFabricManagedApplicationData FromResponse(Response response)
         {
@@ -73,26 +106,25 @@ namespace Azure.ResourceManager.ServiceFabricManagedClusters
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
             }
-            if (Optional.IsCollectionDefined(Tags))
-            {
-                writer.WritePropertyName("tags"u8);
-                writer.WriteStartObject();
-                foreach (var item in Tags)
-                {
-                    writer.WritePropertyName(item.Key);
-                    if (item.Value == null)
-                    {
-                        writer.WriteNullValue();
-                        continue;
-                    }
-                    writer.WriteStringValue(item.Value);
-                }
-                writer.WriteEndObject();
-            }
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -125,11 +157,11 @@ namespace Azure.ResourceManager.ServiceFabricManagedClusters
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            IDictionary<string, string> tags = default;
             AzureLocation location = default;
             ApplicationResourceProperties properties = default;
-            IDictionary<string, string> tags = default;
             ManagedServiceIdentity identity = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -164,20 +196,6 @@ namespace Azure.ResourceManager.ServiceFabricManagedClusters
                     systemData = ModelReaderWriter.Read<SystemData>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerServiceFabricManagedClustersContext.Default);
                     continue;
                 }
-                if (prop.NameEquals("location"u8))
-                {
-                    location = new AzureLocation(prop.Value.GetString());
-                    continue;
-                }
-                if (prop.NameEquals("properties"u8))
-                {
-                    if (prop.Value.ValueKind == JsonValueKind.Null)
-                    {
-                        continue;
-                    }
-                    properties = ApplicationResourceProperties.DeserializeApplicationResourceProperties(prop.Value, options);
-                    continue;
-                }
                 if (prop.NameEquals("tags"u8))
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
@@ -199,13 +217,27 @@ namespace Azure.ResourceManager.ServiceFabricManagedClusters
                     tags = dictionary;
                     continue;
                 }
+                if (prop.NameEquals("location"u8))
+                {
+                    location = new AzureLocation(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("properties"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    properties = ApplicationResourceProperties.DeserializeApplicationResourceProperties(prop.Value, options);
+                    continue;
+                }
                 if (prop.NameEquals("identity"u8))
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerServiceFabricManagedClustersContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerServiceFabricManagedClustersContext.Default);
                     continue;
                 }
                 if (options.Format != "W")
@@ -218,46 +250,11 @@ namespace Azure.ResourceManager.ServiceFabricManagedClusters
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
+                tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
-                tags ?? new ChangeTrackingDictionary<string, string>(),
-                identity);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ServiceFabricManagedApplicationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ServiceFabricManagedApplicationData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerServiceFabricManagedClustersContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ServiceFabricManagedApplicationData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ServiceFabricManagedApplicationData IPersistableModel<ServiceFabricManagedApplicationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ServiceFabricManagedApplicationData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ServiceFabricManagedApplicationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="serviceFabricManagedApplicationData"> The <see cref="ServiceFabricManagedApplicationData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ServiceFabricManagedApplicationData serviceFabricManagedApplicationData)
-        {
-            if (serviceFabricManagedApplicationData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(serviceFabricManagedApplicationData, ModelSerializationExtensions.WireOptions);
-            return content;
+                identity,
+                additionalBinaryDataProperties);
         }
     }
 }

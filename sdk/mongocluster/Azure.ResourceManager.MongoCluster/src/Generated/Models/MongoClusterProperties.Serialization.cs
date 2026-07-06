@@ -33,6 +33,29 @@ namespace Azure.ResourceManager.MongoCluster.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<MongoClusterProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerMongoClusterContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(MongoClusterProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<MongoClusterProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        MongoClusterProperties IPersistableModel<MongoClusterProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<MongoClusterProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<MongoClusterProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -166,6 +189,11 @@ namespace Azure.ResourceManager.MongoCluster.Models
                 writer.WritePropertyName("encryption"u8);
                 writer.WriteObjectValue(Encryption, options);
             }
+            if (Optional.IsDefined(NetworkBypassMode))
+            {
+                writer.WritePropertyName("networkBypassMode"u8);
+                writer.WriteStringValue(NetworkBypassMode.Value.ToString());
+            }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -229,6 +257,7 @@ namespace Azure.ResourceManager.MongoCluster.Models
             string infrastructureVersion = default;
             AuthConfigProperties authConfig = default;
             EncryptionProperties encryption = default;
+            MongoClusterNetworkBypassMode? networkBypassMode = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -419,6 +448,15 @@ namespace Azure.ResourceManager.MongoCluster.Models
                     encryption = EncryptionProperties.DeserializeEncryptionProperties(prop.Value, options);
                     continue;
                 }
+                if (prop.NameEquals("networkBypassMode"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    networkBypassMode = new MongoClusterNetworkBypassMode(prop.Value.GetString());
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
@@ -446,30 +484,8 @@ namespace Azure.ResourceManager.MongoCluster.Models
                 infrastructureVersion,
                 authConfig,
                 encryption,
+                networkBypassMode,
                 additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<MongoClusterProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<MongoClusterProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerMongoClusterContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(MongoClusterProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        MongoClusterProperties IPersistableModel<MongoClusterProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<MongoClusterProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

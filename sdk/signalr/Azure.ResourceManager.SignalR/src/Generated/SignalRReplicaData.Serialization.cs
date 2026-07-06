@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.SignalR
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<SignalRReplicaData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerSignalRContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(SignalRReplicaData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<SignalRReplicaData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        SignalRReplicaData IPersistableModel<SignalRReplicaData>.Create(BinaryData data, ModelReaderWriterOptions options) => (SignalRReplicaData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<SignalRReplicaData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="signalRReplicaData"> The <see cref="SignalRReplicaData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(SignalRReplicaData signalRReplicaData)
+        {
+            if (signalRReplicaData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(signalRReplicaData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="SignalRReplicaData"/> from. </param>
         internal static SignalRReplicaData FromResponse(Response response)
         {
@@ -78,6 +111,21 @@ namespace Azure.ResourceManager.SignalR
                 writer.WritePropertyName("sku"u8);
                 writer.WriteObjectValue(Sku, options);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -109,11 +157,11 @@ namespace Azure.ResourceManager.SignalR
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             ReplicaProperties properties = default;
             SignalRResourceSku sku = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -202,46 +250,11 @@ namespace Azure.ResourceManager.SignalR
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
-                sku);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<SignalRReplicaData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<SignalRReplicaData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerSignalRContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(SignalRReplicaData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        SignalRReplicaData IPersistableModel<SignalRReplicaData>.Create(BinaryData data, ModelReaderWriterOptions options) => (SignalRReplicaData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<SignalRReplicaData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="signalRReplicaData"> The <see cref="SignalRReplicaData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(SignalRReplicaData signalRReplicaData)
-        {
-            if (signalRReplicaData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(signalRReplicaData, ModelSerializationExtensions.WireOptions);
-            return content;
+                sku,
+                additionalBinaryDataProperties);
         }
     }
 }

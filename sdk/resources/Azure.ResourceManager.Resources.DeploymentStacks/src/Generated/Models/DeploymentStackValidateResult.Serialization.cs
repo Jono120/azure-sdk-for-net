@@ -37,6 +37,29 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DeploymentStackValidateResult>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerResourcesDeploymentStacksContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DeploymentStackValidateResult)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DeploymentStackValidateResult>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DeploymentStackValidateResult IPersistableModel<DeploymentStackValidateResult>.Create(BinaryData data, ModelReaderWriterOptions options) => (DeploymentStackValidateResult)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DeploymentStackValidateResult>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="DeploymentStackValidateResult"/> from. </param>
         internal static DeploymentStackValidateResult FromResponse(Response response)
         {
@@ -63,16 +86,6 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
                 throw new FormatException($"The model {nameof(DeploymentStackValidateResult)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
-            if (options.Format != "W" && Optional.IsDefined(Name))
-            {
-                writer.WritePropertyName("name"u8);
-                writer.WriteStringValue(Name);
-            }
-            if (options.Format != "W" && Optional.IsDefined(SystemData))
-            {
-                writer.WritePropertyName("systemData"u8);
-                ((IJsonModel<SystemData>)SystemData).Write(writer, options);
-            }
             if (options.Format != "W" && Optional.IsDefined(Error))
             {
                 writer.WritePropertyName("error"u8);
@@ -82,6 +95,21 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -111,12 +139,12 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
                 return null;
             }
             ResourceIdentifier id = default;
-            ResourceType resourceType = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             string name = default;
+            ResourceType resourceType = default;
             SystemData systemData = default;
             ResponseError error = default;
             DeploymentStackValidateProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -128,6 +156,11 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
                     id = new ResourceIdentifier(prop.Value.GetString());
                     continue;
                 }
+                if (prop.NameEquals("name"u8))
+                {
+                    name = prop.Value.GetString();
+                    continue;
+                }
                 if (prop.NameEquals("type"u8))
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
@@ -135,11 +168,6 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
                         continue;
                     }
                     resourceType = new ResourceType(prop.Value.GetString());
-                    continue;
-                }
-                if (prop.NameEquals("name"u8))
-                {
-                    name = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("systemData"u8))
@@ -176,35 +204,12 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks.Models
             }
             return new DeploymentStackValidateResult(
                 id,
-                resourceType,
-                additionalBinaryDataProperties,
                 name,
+                resourceType,
                 systemData,
                 error,
-                properties);
+                properties,
+                additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DeploymentStackValidateResult>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DeploymentStackValidateResult>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerResourcesDeploymentStacksContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DeploymentStackValidateResult)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DeploymentStackValidateResult IPersistableModel<DeploymentStackValidateResult>.Create(BinaryData data, ModelReaderWriterOptions options) => (DeploymentStackValidateResult)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DeploymentStackValidateResult>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -37,6 +37,32 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<PlannedFailoverCustomProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerRecoveryServicesDataReplicationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(PlannedFailoverCustomProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<PlannedFailoverCustomProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        PlannedFailoverCustomProperties IPersistableModel<PlannedFailoverCustomProperties>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            return PersistableModelCreateCore(data, options);
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<PlannedFailoverCustomProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<PlannedFailoverCustomProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -60,7 +86,10 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication.Models
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        PlannedFailoverCustomProperties IJsonModel<PlannedFailoverCustomProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        PlannedFailoverCustomProperties IJsonModel<PlannedFailoverCustomProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            return JsonModelCreateCore(ref reader, options);
+        }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -99,28 +128,5 @@ namespace Azure.ResourceManager.RecoveryServicesDataReplication.Models
             }
             return new UnknownPlannedFailoverCustomProperties(instanceType, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<PlannedFailoverCustomProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<PlannedFailoverCustomProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerRecoveryServicesDataReplicationContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(PlannedFailoverCustomProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        PlannedFailoverCustomProperties IPersistableModel<PlannedFailoverCustomProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<PlannedFailoverCustomProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

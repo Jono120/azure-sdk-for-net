@@ -41,6 +41,39 @@ namespace Azure.ResourceManager.Chaos
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ChaosTargetData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerChaosContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ChaosTargetData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ChaosTargetData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ChaosTargetData IPersistableModel<ChaosTargetData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ChaosTargetData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ChaosTargetData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="chaosTargetData"> The <see cref="ChaosTargetData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ChaosTargetData chaosTargetData)
+        {
+            if (chaosTargetData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(chaosTargetData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ChaosTargetData"/> from. </param>
         internal static ChaosTargetData FromResponse(Response response)
         {
@@ -92,6 +125,21 @@ namespace Azure.ResourceManager.Chaos
                 writer.WritePropertyName("location"u8);
                 writer.WriteStringValue(Location.Value);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -123,9 +171,9 @@ namespace Azure.ResourceManager.Chaos
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, BinaryData> properties = default;
             AzureLocation? location = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -196,44 +244,9 @@ namespace Azure.ResourceManager.Chaos
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 properties,
-                location);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ChaosTargetData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ChaosTargetData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerChaosContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ChaosTargetData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ChaosTargetData IPersistableModel<ChaosTargetData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ChaosTargetData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ChaosTargetData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="chaosTargetData"> The <see cref="ChaosTargetData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ChaosTargetData chaosTargetData)
-        {
-            if (chaosTargetData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(chaosTargetData, ModelSerializationExtensions.WireOptions);
-            return content;
+                location,
+                additionalBinaryDataProperties);
         }
     }
 }

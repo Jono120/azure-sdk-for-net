@@ -43,6 +43,39 @@ namespace Azure.ResourceManager.WorkloadOrchestration
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<EdgeTargetData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerWorkloadOrchestrationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(EdgeTargetData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<EdgeTargetData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        EdgeTargetData IPersistableModel<EdgeTargetData>.Create(BinaryData data, ModelReaderWriterOptions options) => (EdgeTargetData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<EdgeTargetData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="edgeTargetData"> The <see cref="EdgeTargetData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(EdgeTargetData edgeTargetData)
+        {
+            if (edgeTargetData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(edgeTargetData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="EdgeTargetData"/> from. </param>
         internal static EdgeTargetData FromResponse(Response response)
         {
@@ -84,6 +117,21 @@ namespace Azure.ResourceManager.WorkloadOrchestration
                 writer.WritePropertyName("extendedLocation"u8);
                 ((IJsonModel<ExtendedLocation>)ExtendedLocation).Write(writer, options);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -115,12 +163,12 @@ namespace Azure.ResourceManager.WorkloadOrchestration
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             EdgeTargetProperties properties = default;
             ETag? eTag = default;
             ExtendedLocation extendedLocation = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -218,47 +266,12 @@ namespace Azure.ResourceManager.WorkloadOrchestration
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
                 eTag,
-                extendedLocation);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<EdgeTargetData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EdgeTargetData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerWorkloadOrchestrationContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(EdgeTargetData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EdgeTargetData IPersistableModel<EdgeTargetData>.Create(BinaryData data, ModelReaderWriterOptions options) => (EdgeTargetData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<EdgeTargetData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="edgeTargetData"> The <see cref="EdgeTargetData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(EdgeTargetData edgeTargetData)
-        {
-            if (edgeTargetData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(edgeTargetData, ModelSerializationExtensions.WireOptions);
-            return content;
+                extendedLocation,
+                additionalBinaryDataProperties);
         }
     }
 }

@@ -38,6 +38,29 @@ namespace Azure.ResourceManager.ComputeFleet.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ComputeFleetProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeFleetContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ComputeFleetProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ComputeFleetProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ComputeFleetProperties IPersistableModel<ComputeFleetProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ComputeFleetProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ComputeFleetProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -105,6 +128,11 @@ namespace Azure.ResourceManager.ComputeFleet.Models
                 writer.WritePropertyName("mode"u8);
                 writer.WriteStringValue(Mode.Value.ToString());
             }
+            if (Optional.IsDefined(VmNamePrefix))
+            {
+                writer.WritePropertyName("vmNamePrefix"u8);
+                writer.WriteStringValue(VmNamePrefix);
+            }
             if (Optional.IsDefined(CapacityType))
             {
                 writer.WritePropertyName("capacityType"u8);
@@ -167,6 +195,7 @@ namespace Azure.ResourceManager.ComputeFleet.Models
             DateTimeOffset? createdOn = default;
             string uniqueId = default;
             ComputeFleetMode? mode = default;
+            string vmNamePrefix = default;
             ComputeFleetCapacityType? capacityType = default;
             ComputeFleetZoneAllocationPolicy zoneAllocationPolicy = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
@@ -255,6 +284,11 @@ namespace Azure.ResourceManager.ComputeFleet.Models
                     mode = new ComputeFleetMode(prop.Value.GetString());
                     continue;
                 }
+                if (prop.NameEquals("vmNamePrefix"u8))
+                {
+                    vmNamePrefix = prop.Value.GetString();
+                    continue;
+                }
                 if (prop.NameEquals("capacityType"u8))
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
@@ -289,32 +323,10 @@ namespace Azure.ResourceManager.ComputeFleet.Models
                 createdOn,
                 uniqueId,
                 mode,
+                vmNamePrefix,
                 capacityType,
                 zoneAllocationPolicy,
                 additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ComputeFleetProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ComputeFleetProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeFleetContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ComputeFleetProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ComputeFleetProperties IPersistableModel<ComputeFleetProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ComputeFleetProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

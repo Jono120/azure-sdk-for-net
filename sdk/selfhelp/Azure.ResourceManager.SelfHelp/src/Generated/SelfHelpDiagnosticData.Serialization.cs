@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.SelfHelp
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<SelfHelpDiagnosticData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerSelfHelpContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(SelfHelpDiagnosticData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<SelfHelpDiagnosticData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        SelfHelpDiagnosticData IPersistableModel<SelfHelpDiagnosticData>.Create(BinaryData data, ModelReaderWriterOptions options) => (SelfHelpDiagnosticData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<SelfHelpDiagnosticData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="selfHelpDiagnosticData"> The <see cref="SelfHelpDiagnosticData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(SelfHelpDiagnosticData selfHelpDiagnosticData)
+        {
+            if (selfHelpDiagnosticData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(selfHelpDiagnosticData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="SelfHelpDiagnosticData"/> from. </param>
         internal static SelfHelpDiagnosticData FromResponse(Response response)
         {
@@ -67,6 +100,21 @@ namespace Azure.ResourceManager.SelfHelp
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +147,8 @@ namespace Azure.ResourceManager.SelfHelp
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             DiagnosticResourceProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,43 +202,8 @@ namespace Azure.ResourceManager.SelfHelp
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<SelfHelpDiagnosticData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<SelfHelpDiagnosticData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerSelfHelpContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(SelfHelpDiagnosticData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        SelfHelpDiagnosticData IPersistableModel<SelfHelpDiagnosticData>.Create(BinaryData data, ModelReaderWriterOptions options) => (SelfHelpDiagnosticData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<SelfHelpDiagnosticData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="selfHelpDiagnosticData"> The <see cref="SelfHelpDiagnosticData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(SelfHelpDiagnosticData selfHelpDiagnosticData)
-        {
-            if (selfHelpDiagnosticData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(selfHelpDiagnosticData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

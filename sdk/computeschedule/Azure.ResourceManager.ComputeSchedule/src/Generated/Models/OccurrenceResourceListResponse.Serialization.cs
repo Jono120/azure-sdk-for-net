@@ -39,6 +39,29 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<OccurrenceResourceListResponse>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeScheduleContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(OccurrenceResourceListResponse)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<OccurrenceResourceListResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        OccurrenceResourceListResponse IPersistableModel<OccurrenceResourceListResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<OccurrenceResourceListResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="OccurrenceResourceListResponse"/> from. </param>
         internal static OccurrenceResourceListResponse FromResponse(Response response)
         {
@@ -66,7 +89,7 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStartArray();
-            foreach (OccurrenceResourceData item in Value)
+            foreach (OccurrenceDetails item in Value)
             {
                 writer.WriteObjectValue(item, options);
             }
@@ -118,17 +141,17 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             {
                 return null;
             }
-            IList<OccurrenceResourceData> value = default;
+            IList<OccurrenceDetails> value = default;
             Uri nextLink = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("value"u8))
                 {
-                    List<OccurrenceResourceData> array = new List<OccurrenceResourceData>();
+                    List<OccurrenceDetails> array = new List<OccurrenceDetails>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(OccurrenceResourceData.DeserializeOccurrenceResourceData(item, options));
+                        array.Add(OccurrenceDetails.DeserializeOccurrenceDetails(item, options));
                     }
                     value = array;
                     continue;
@@ -139,7 +162,7 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
                     {
                         continue;
                     }
-                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString(), UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if (options.Format != "W")
@@ -149,28 +172,5 @@ namespace Azure.ResourceManager.ComputeSchedule.Models
             }
             return new OccurrenceResourceListResponse(value, nextLink, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<OccurrenceResourceListResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<OccurrenceResourceListResponse>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerComputeScheduleContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(OccurrenceResourceListResponse)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        OccurrenceResourceListResponse IPersistableModel<OccurrenceResourceListResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<OccurrenceResourceListResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

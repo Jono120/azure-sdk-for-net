@@ -9,9 +9,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Azure.AI.Projects;
 
-namespace Azure.Core
+namespace Azure.AI.Projects.Evaluation
 {
-    /// <summary> Paged collection of EvaluatorVersion items. </summary>
     internal partial class PagedEvaluatorVersion : IJsonModel<PagedEvaluatorVersion>
     {
         /// <summary> Initializes a new instance of <see cref="PagedEvaluatorVersion"/> for deserialization. </summary>
@@ -160,7 +159,7 @@ namespace Azure.Core
                     {
                         continue;
                     }
-                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString(), UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if (options.Format != "W")

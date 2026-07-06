@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.ElasticSan
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ElasticSanSnapshotData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerElasticSanContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ElasticSanSnapshotData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ElasticSanSnapshotData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ElasticSanSnapshotData IPersistableModel<ElasticSanSnapshotData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ElasticSanSnapshotData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ElasticSanSnapshotData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="elasticSanSnapshotData"> The <see cref="ElasticSanSnapshotData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ElasticSanSnapshotData elasticSanSnapshotData)
+        {
+            if (elasticSanSnapshotData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(elasticSanSnapshotData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ElasticSanSnapshotData"/> from. </param>
         internal static ElasticSanSnapshotData FromResponse(Response response)
         {
@@ -70,6 +103,21 @@ namespace Azure.ResourceManager.ElasticSan
             base.JsonModelWriteCore(writer, options);
             writer.WritePropertyName("properties"u8);
             writer.WriteObjectValue(Properties, options);
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -101,8 +149,8 @@ namespace Azure.ResourceManager.ElasticSan
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             SnapshotProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -152,43 +200,8 @@ namespace Azure.ResourceManager.ElasticSan
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ElasticSanSnapshotData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ElasticSanSnapshotData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerElasticSanContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ElasticSanSnapshotData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ElasticSanSnapshotData IPersistableModel<ElasticSanSnapshotData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ElasticSanSnapshotData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ElasticSanSnapshotData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="elasticSanSnapshotData"> The <see cref="ElasticSanSnapshotData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ElasticSanSnapshotData elasticSanSnapshotData)
-        {
-            if (elasticSanSnapshotData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(elasticSanSnapshotData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

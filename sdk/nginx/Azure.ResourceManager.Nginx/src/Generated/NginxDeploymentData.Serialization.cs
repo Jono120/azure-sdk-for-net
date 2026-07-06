@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.Nginx
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<NginxDeploymentData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerNginxContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(NginxDeploymentData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<NginxDeploymentData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        NginxDeploymentData IPersistableModel<NginxDeploymentData>.Create(BinaryData data, ModelReaderWriterOptions options) => (NginxDeploymentData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<NginxDeploymentData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="nginxDeploymentData"> The <see cref="NginxDeploymentData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(NginxDeploymentData nginxDeploymentData)
+        {
+            if (nginxDeploymentData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(nginxDeploymentData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="NginxDeploymentData"/> from. </param>
         internal static NginxDeploymentData FromResponse(Response response)
         {
@@ -76,12 +109,27 @@ namespace Azure.ResourceManager.Nginx
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
             }
             if (Optional.IsDefined(Sku))
             {
                 writer.WritePropertyName("sku"u8);
                 writer.WriteObjectValue(Sku, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -114,12 +162,12 @@ namespace Azure.ResourceManager.Nginx
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             NginxDeploymentProperties properties = default;
             ManagedServiceIdentity identity = default;
             NginxResourceSku sku = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -195,7 +243,7 @@ namespace Azure.ResourceManager.Nginx
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerNginxContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerNginxContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("sku"u8))
@@ -217,47 +265,12 @@ namespace Azure.ResourceManager.Nginx
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
                 identity,
-                sku);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<NginxDeploymentData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<NginxDeploymentData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerNginxContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(NginxDeploymentData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        NginxDeploymentData IPersistableModel<NginxDeploymentData>.Create(BinaryData data, ModelReaderWriterOptions options) => (NginxDeploymentData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<NginxDeploymentData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="nginxDeploymentData"> The <see cref="NginxDeploymentData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(NginxDeploymentData nginxDeploymentData)
-        {
-            if (nginxDeploymentData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(nginxDeploymentData, ModelSerializationExtensions.WireOptions);
-            return content;
+                sku,
+                additionalBinaryDataProperties);
         }
     }
 }

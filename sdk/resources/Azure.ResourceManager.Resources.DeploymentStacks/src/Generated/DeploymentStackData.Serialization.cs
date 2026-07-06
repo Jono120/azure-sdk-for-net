@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DeploymentStackData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerResourcesDeploymentStacksContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DeploymentStackData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DeploymentStackData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DeploymentStackData IPersistableModel<DeploymentStackData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DeploymentStackData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DeploymentStackData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="deploymentStackData"> The <see cref="DeploymentStackData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(DeploymentStackData deploymentStackData)
+        {
+            if (deploymentStackData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(deploymentStackData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="DeploymentStackData"/> from. </param>
         internal static DeploymentStackData FromResponse(Response response)
         {
@@ -89,6 +122,21 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
                 }
                 writer.WriteEndObject();
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -120,10 +168,10 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             DeploymentStackProperties properties = default;
             AzureLocation? location = default;
             IDictionary<string, string> tags = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -207,45 +255,10 @@ namespace Azure.ResourceManager.Resources.DeploymentStacks
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 properties,
                 location,
-                tags ?? new ChangeTrackingDictionary<string, string>());
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DeploymentStackData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DeploymentStackData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerResourcesDeploymentStacksContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DeploymentStackData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DeploymentStackData IPersistableModel<DeploymentStackData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DeploymentStackData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DeploymentStackData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="deploymentStackData"> The <see cref="DeploymentStackData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(DeploymentStackData deploymentStackData)
-        {
-            if (deploymentStackData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(deploymentStackData, ModelSerializationExtensions.WireOptions);
-            return content;
+                tags ?? new ChangeTrackingDictionary<string, string>(),
+                additionalBinaryDataProperties);
         }
     }
 }

@@ -5,12 +5,13 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
+using Azure.AI.Projects;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Evaluation
 {
     /// <summary>
     /// The request of the insights report.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EvaluationRunClusterInsightsRequest"/>, <see cref="AgentClusterInsightsRequest"/>, and <see cref="EvaluationComparisonRequest"/>.
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EvaluationRunClusterInsightRequest"/>, <see cref="AgentClusterInsightRequest"/>, and <see cref="EvaluationComparisonInsightRequest"/>.
     /// </summary>
     [PersistableModelProxy(typeof(UnknownInsightRequest))]
     public abstract partial class InsightRequest : IJsonModel<InsightRequest>
@@ -127,11 +128,11 @@ namespace Azure.AI.Projects
                 switch (discriminator.GetString())
                 {
                     case "EvaluationRunClusterInsight":
-                        return EvaluationRunClusterInsightsRequest.DeserializeEvaluationRunClusterInsightsRequest(element, options);
+                        return EvaluationRunClusterInsightRequest.DeserializeEvaluationRunClusterInsightRequest(element, options);
                     case "AgentClusterInsight":
-                        return AgentClusterInsightsRequest.DeserializeAgentClusterInsightsRequest(element, options);
+                        return AgentClusterInsightRequest.DeserializeAgentClusterInsightRequest(element, options);
                     case "EvaluationComparison":
-                        return EvaluationComparisonRequest.DeserializeEvaluationComparisonRequest(element, options);
+                        return EvaluationComparisonInsightRequest.DeserializeEvaluationComparisonInsightRequest(element, options);
                 }
             }
             return UnknownInsightRequest.DeserializeUnknownInsightRequest(element, options);

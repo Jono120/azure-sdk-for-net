@@ -5,11 +5,11 @@
 using System;
 using System.Collections.Generic;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Evaluation
 {
     /// <summary>
     /// The request of the insights report.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EvaluationRunClusterInsightsRequest"/>, <see cref="AgentClusterInsightsRequest"/>, and <see cref="EvaluationComparisonRequest"/>.
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EvaluationRunClusterInsightRequest"/>, <see cref="AgentClusterInsightRequest"/>, and <see cref="EvaluationComparisonInsightRequest"/>.
     /// </summary>
     public abstract partial class InsightRequest
     {

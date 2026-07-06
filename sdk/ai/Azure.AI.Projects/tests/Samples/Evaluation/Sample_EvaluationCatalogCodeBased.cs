@@ -1,15 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.ClientModel;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+using System.Diagnostics.Metrics;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.AI.Projects.OpenAI;
+using Azure.AI.Projects.Evaluation;
 using Azure.Identity;
 using Microsoft.ClientModel.TestFramework;
 using NUnit.Framework;
@@ -17,170 +15,9 @@ using OpenAI.Evals;
 
 namespace Azure.AI.Projects.Tests.Samples.Evaluation;
 
-public class Sample_EvaluationsCatalogCodeBased : SamplesBase
+public class Sample_EvaluationsCatalogCodeBased : EvaluationSampleBase
 {
-    #region Snippet:Sampple_GetError_EvaluationsCatalogCodeBased
-    private static string GetErrorMessageOrEmpty(ClientResult result)
-    {
-        string error = "";
-        Utf8JsonReader reader = new(result.GetRawResponse().Content.ToMemory().ToArray());
-        JsonDocument document = JsonDocument.ParseValue(ref reader);
-        string code = default;
-        string message = default;
-        foreach (JsonProperty prop in document.RootElement.EnumerateObject())
-        {
-            if (prop.NameEquals("error"u8) && prop.Value.ValueKind != JsonValueKind.Null && prop.Value is JsonElement countsElement)
-            {
-                foreach (JsonProperty errorNode in countsElement.EnumerateObject())
-                {
-                    if (errorNode.Value.ValueKind == JsonValueKind.String)
-                    {
-                        if (errorNode.NameEquals("code"u8))
-                        {
-                            code = errorNode.Value.GetString();
-                        }
-                        else if (errorNode.NameEquals("message"u8))
-                        {
-                            message = errorNode.Value.GetString();
-                        }
-                    }
-                }
-            }
-        }
-        if (!string.IsNullOrEmpty(message))
-        {
-            error = $"Message: {message}, Code: {code ?? "<None>"}";
-        }
-        return error;
-    }
-    #endregion
-    #region Snippet:Sampple_GetResultCounts_EvaluationsCatalogCodeBased
-    private static string GetResultsCounts(ClientResult result)
-    {
-        Utf8JsonReader reader = new(result.GetRawResponse().Content.ToMemory().ToArray());
-        JsonDocument document = JsonDocument.ParseValue(ref reader);
-        StringBuilder sbFormattedCounts = new("{\n");
-        foreach (JsonProperty prop in document.RootElement.EnumerateObject())
-        {
-            if (prop.NameEquals("result_counts"u8) && prop.Value is JsonElement countsElement)
-            {
-                foreach (JsonProperty count in countsElement.EnumerateObject())
-                {
-                    if (count.Value.ValueKind == JsonValueKind.Number)
-                    {
-                        sbFormattedCounts.Append($"    {count.Name}: {count.Value.GetInt32()}\n");
-                    }
-                }
-            }
-        }
-        sbFormattedCounts.Append('}');
-        if (sbFormattedCounts.Length == 3)
-        {
-            throw new InvalidOperationException("The result does not contain the \"result_counts\" field.");
-        }
-        return sbFormattedCounts.ToString();
-    }
-    #endregion
-    #region Snippet:Sampple_GetStringValues_EvaluationsCatalogCodeBased
-    private static Dictionary<string, string> ParseClientResult(ClientResult result, string[] expectedProperties)
-    {
-        Dictionary<string, string> results = [];
-        Utf8JsonReader reader = new(result.GetRawResponse().Content.ToMemory().ToArray());
-        JsonDocument document = JsonDocument.ParseValue(ref reader);
-        foreach (JsonProperty prop in document.RootElement.EnumerateObject())
-        {
-            foreach (string key in expectedProperties)
-            {
-                if (prop.NameEquals(Encoding.UTF8.GetBytes(key)) && prop.Value.ValueKind == JsonValueKind.String)
-                {
-                    results[key] = prop.Value.GetString();
-                }
-            }
-        }
-        List<string> notFoundItems = expectedProperties.Where((key) => !results.ContainsKey(key)).ToList();
-        if (notFoundItems.Count > 0)
-        {
-            StringBuilder sbNotFound = new();
-            foreach (string value in notFoundItems)
-            {
-                sbNotFound.Append($"{value}, ");
-            }
-            if (sbNotFound.Length > 2)
-            {
-                sbNotFound.Remove(sbNotFound.Length - 2, 2);
-            }
-            throw new InvalidOperationException($"The next keys were not found in returned result: {sbNotFound}.");
-        }
-        return results;
-    }
-    #endregion
-    #region Snippet:Sampple_GetResultsList_EvaluationsCatalogCodeBased_Async
-    private static async Task<List<string>> GetResultsListAsync(EvaluationClient client, string evaluationId, string evaluationRunId)
-    {
-        List<string> resultJsons = [];
-        bool hasMore = false;
-        do
-        {
-            ClientResult resultList = await client.GetEvaluationRunOutputItemsAsync(evaluationId: evaluationId, evaluationRunId: evaluationRunId, limit: null, order: "asc", after: default, outputItemStatus: default, options: new());
-            Utf8JsonReader reader = new(resultList.GetRawResponse().Content.ToMemory().ToArray());
-            JsonDocument document = JsonDocument.ParseValue(ref reader);
-
-            foreach (JsonProperty topProperty in document.RootElement.EnumerateObject())
-            {
-                if (topProperty.NameEquals("has_more"u8))
-                {
-                    hasMore = topProperty.Value.GetBoolean();
-                }
-                else if (topProperty.NameEquals("data"u8))
-                {
-                    if (topProperty.Value.ValueKind == JsonValueKind.Array)
-                    {
-                        foreach (JsonElement dataElement in topProperty.Value.EnumerateArray())
-                        {
-                            resultJsons.Add(dataElement.ToString());
-                        }
-                    }
-                }
-            }
-        } while (hasMore);
-        return resultJsons;
-    }
-    #endregion
-    #region Snippet:Sampple_GetResultsList_EvaluationsCatalogCodeBased_Sync
-    private static List<string> GetResultsList(EvaluationClient client, string evaluationId, string evaluationRunId)
-    {
-        List<string> resultJsons = [];
-        bool hasMore = false;
-        do
-        {
-            ClientResult resultList = client.GetEvaluationRunOutputItems(evaluationId: evaluationId, evaluationRunId: evaluationRunId, limit: null, order: "asc", after: default, outputItemStatus: default, options: new());
-            Utf8JsonReader reader = new(resultList.GetRawResponse().Content.ToMemory().ToArray());
-            JsonDocument document = JsonDocument.ParseValue(ref reader);
-            List<string> data = [];
-
-            foreach (JsonProperty topProperty in document.RootElement.EnumerateObject())
-            {
-                if (topProperty.NameEquals("has_more"u8))
-                {
-                    hasMore = topProperty.Value.GetBoolean();
-                }
-                else if (topProperty.NameEquals("data"u8))
-                {
-                    if (topProperty.Value.ValueKind == JsonValueKind.Array)
-                    {
-                        foreach (JsonElement dataElement in topProperty.Value.EnumerateArray())
-                        {
-                            resultJsons.Add(dataElement.ToString());
-                        }
-                    }
-                }
-            }
-        } while (hasMore);
-        return resultJsons;
-    }
-    #endregion
-
-    #region Snippet:Sampple_CodeEvaluator_EvaluationsCatalogCodeBased
+    #region Snippet:Sample_CodeEvaluator_EvaluationsCatalogCodeBased
     private EvaluatorVersion GetCodeEvaluatorVersion()
     {
         EvaluatorMetric resultMetric = new()
@@ -191,47 +28,47 @@ public class Sample_EvaluationsCatalogCodeBased : SamplesBase
             MaxValue = 1.0f
         };
         EvaluatorVersion evaluatorVersion = new(
-            categories: [EvaluatorCategory.Quality],
-            definition: new CodeBasedEvaluatorDefinition(
-                codeText: "def grade(sample, item) -> float:\n    \"\"\"\n    Evaluate response quality based on multiple criteria.\n    Note: All data is in the \\'item\\' parameter, \\'sample\\' is empty.\n    \"\"\"\n    # Extract data from item (not sample!)\n    response = item.get(\"response\", \"\").lower() if isinstance(item, dict) else \"\"\n    ground_truth = item.get(\"ground_truth\", \"\").lower() if isinstance(item, dict) else \"\"\n    query = item.get(\"query\", \"\").lower() if isinstance(item, dict) else \"\"\n    \n    # Check if response is empty\n    if not response:\n        return 0.0\n    \n    # Check for harmful content\n    harmful_keywords = [\"harmful\", \"dangerous\", \"unsafe\", \"illegal\", \"unethical\"]\n    if any(keyword in response for keyword in harmful_keywords):\n        return 0.0\n    \n    # Length check\n    if len(response) < 10:\n        return 0.1\n    elif len(response) < 50:\n        return 0.2\n    \n    # Technical content check\n    technical_keywords = [\"api\", \"experiment\", \"run\", \"azure\", \"machine learning\", \"gradient\", \"neural\", \"algorithm\"]\n    technical_score = sum(1 for k in technical_keywords if k in response) / len(technical_keywords)\n    \n    # Query relevance\n    query_words = query.split()[:3] if query else []\n    relevance_score = 0.7 if any(word in response for word in query_words) else 0.3\n    \n    # Ground truth similarity\n    if ground_truth:\n        truth_words = set(ground_truth.split())\n        response_words = set(response.split())\n        overlap = len(truth_words & response_words) / len(truth_words) if truth_words else 0\n        similarity_score = min(1.0, overlap)\n    else:\n        similarity_score = 0.5\n    \n    return min(1.0, (technical_score * 0.3) + (relevance_score * 0.3) + (similarity_score * 0.4))",
-                initParameters: BinaryData.FromObjectAsJson(
-                    new
+        categories: [EvaluatorCategory.Quality],
+        definition: new CodeBasedEvaluatorDefinition(
+            codeText: "def grade(sample, item) -> float:\n    \"\"\"\n    Evaluate response quality based on multiple criteria.\n    Note: All data is in the \\'item\\' parameter, \\'sample\\' is empty.\n    \"\"\"\n    # Extract data from item (not sample!)\n    response = item.get(\"response\", \"\").lower() if isinstance(item, dict) else \"\"\n    ground_truth = item.get(\"ground_truth\", \"\").lower() if isinstance(item, dict) else \"\"\n    query = item.get(\"query\", \"\").lower() if isinstance(item, dict) else \"\"\n    \n    # Check if response is empty\n    if not response:\n        return 0.0\n    \n    # Check for harmful content\n    harmful_keywords = [\"harmful\", \"dangerous\", \"unsafe\", \"illegal\", \"unethical\"]\n    if any(keyword in response for keyword in harmful_keywords):\n        return 0.0\n    \n    # Length check\n    if len(response) < 10:\n        return 0.1\n    elif len(response) < 50:\n        return 0.2\n    \n    # Technical content check\n    technical_keywords = [\"api\", \"experiment\", \"run\", \"azure\", \"machine learning\", \"gradient\", \"neural\", \"algorithm\"]\n    technical_score = sum(1 for k in technical_keywords if k in response) / len(technical_keywords)\n    \n    # Query relevance\n    query_words = query.split()[:3] if query else []\n    relevance_score = 0.7 if any(word in response for word in query_words) else 0.3\n    \n    # Ground truth similarity\n    if ground_truth:\n        truth_words = set(ground_truth.split())\n        response_words = set(response.split())\n        overlap = len(truth_words & response_words) / len(truth_words) if truth_words else 0\n        similarity_score = min(1.0, overlap)\n    else:\n        similarity_score = 0.5\n    \n    return min(1.0, (technical_score * 0.3) + (relevance_score * 0.3) + (similarity_score * 0.4))",
+            initParameters: BinaryData.FromObjectAsJson(
+                new
+                {
+                    required = new[] { "deployment_name", "pass_threshold" },
+                    type = "object",
+                    properties = new
                     {
-                        required = new[] { "deployment_name", "pass_threshold" },
-                        type = "object",
-                        properties = new
-                        {
-                            deployment_name = new { type = "string" },
-                            pass_threshold = new { type = "string" }
-                        }
+                        deployment_name = new { type = "string" },
+                        pass_threshold = new { type = "string" }
                     }
-                ),
-                dataSchema: BinaryData.FromObjectAsJson(
-                    new
+                }
+            ),
+            dataSchema: BinaryData.FromObjectAsJson(
+                new
+                {
+                    required = new[] { "item" },
+                    type = "object",
+                    properties = new
                     {
-                        required = new[] { "item" },
-                        type = "object",
-                        properties = new
+                        item = new
                         {
-                            item = new
+                            type = "object",
+                            properties = new
                             {
-                                type = "object",
-                                properties = new
-                                {
-                                    query = new { type = "string" },
-                                    response = new { type = "string" },
-                                    ground_truth = new { type = "string" },
-                                }
+                                query = new { type = "string" },
+                                response = new { type = "string" },
+                                ground_truth = new { type = "string" },
                             }
                         }
                     }
-                ),
-                metrics: new Dictionary<string, EvaluatorMetric> {
-                    { "result", resultMetric }
                 }
             ),
-            evaluatorType: EvaluatorType.Custom
-        )
+            metrics: new Dictionary<string, EvaluatorMetric> {
+                { "result", resultMetric }
+            }
+        ),
+        evaluatorType: EvaluatorType.Custom
+    )
         {
             DisplayName = "Custom code evaluator example",
             Description = "Custom evaluator to detect violent content",
@@ -244,16 +81,16 @@ public class Sample_EvaluationsCatalogCodeBased : SamplesBase
     [AsyncOnly]
     public async Task Sample_EvaluationsCatalogCodeBasedExampleAsync()
     {
-        #region Snippet:Sampple_CreateClients_EvaluationsCatalogCodeBased
+        #region Snippet:Sample_CreateClients_EvaluationsCatalogCodeBased
 #if SNIPPET
-        var endpoint = System.Environment.GetEnvironmentVariable("PROJECT_ENDPOINT");
-        var modelDeploymentName = System.Environment.GetEnvironmentVariable("MODEL_DEPLOYMENT_NAME");
+        var endpoint = System.Environment.GetEnvironmentVariable("FOUNDRY_PROJECT_ENDPOINT");
+        var modelDeploymentName = System.Environment.GetEnvironmentVariable("FOUNDRY_MODEL_NAME");
 #else
-        var endpoint = TestEnvironment.PROJECT_ENDPOINT;
-        var modelDeploymentName = TestEnvironment.MODELDEPLOYMENTNAME;
+        var endpoint = TestEnvironment.FOUNDRY_PROJECT_ENDPOINT;
+        var modelDeploymentName = TestEnvironment.FOUNDRY_MODEL_NAME;
 #endif
         AIProjectClient projectClient = new(new Uri(endpoint), new DefaultAzureCredential());
-        EvaluationClient evaluationClient = projectClient.OpenAI.GetEvaluationClient();
+        EvaluationClient evaluationClient = projectClient.ProjectOpenAIClient.GetEvaluationClient();
         #endregion
         #region Snippet:Sample_CreateEvaluator_EvaluationsCatalogCodeBased_Async
         EvaluatorVersion promptEvaluator = await projectClient.Evaluators.CreateVersionAsync(
@@ -403,14 +240,14 @@ public class Sample_EvaluationsCatalogCodeBased : SamplesBase
     public void Sample_EvaluationsCatalogCodeBasedExampleSync()
     {
 #if SNIPPET
-        var endpoint = System.Environment.GetEnvironmentVariable("PROJECT_ENDPOINT");
-        var modelDeploymentName = System.Environment.GetEnvironmentVariable("MODEL_DEPLOYMENT_NAME");
+        var endpoint = System.Environment.GetEnvironmentVariable("FOUNDRY_PROJECT_ENDPOINT");
+        var modelDeploymentName = System.Environment.GetEnvironmentVariable("FOUNDRY_MODEL_NAME");
 #else
-        var endpoint = TestEnvironment.PROJECT_ENDPOINT;
-        var modelDeploymentName = TestEnvironment.MODELDEPLOYMENTNAME;
+        var endpoint = TestEnvironment.FOUNDRY_PROJECT_ENDPOINT;
+        var modelDeploymentName = TestEnvironment.FOUNDRY_MODEL_NAME;
 #endif
         AIProjectClient projectClient = new(new Uri(endpoint), new DefaultAzureCredential());
-        EvaluationClient evaluationClient = projectClient.OpenAI.GetEvaluationClient();
+        EvaluationClient evaluationClient = projectClient.ProjectOpenAIClient.GetEvaluationClient();
         #region Snippet:Sample_CreateEvaluator_EvaluationsCatalogCodeBased_Sync
         EvaluatorVersion promptEvaluator = projectClient.Evaluators.CreateVersion(
             name: "myCustomEvaluatorPrompt",

@@ -5,12 +5,13 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
+using Azure.AI.Projects;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Evaluation
 {
     /// <summary>
     /// The result of the insights.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EvalCompareReport"/>, <see cref="EvaluationRunClusterInsightResult"/>, and <see cref="AgentClusterInsightResult"/>.
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="EvaluationComparisonInsightResult"/>, <see cref="EvaluationRunClusterInsightResult"/>, and <see cref="AgentClusterInsightResult"/>.
     /// </summary>
     [PersistableModelProxy(typeof(UnknownInsightResult))]
     public abstract partial class InsightResult : IJsonModel<InsightResult>
@@ -127,7 +128,7 @@ namespace Azure.AI.Projects
                 switch (discriminator.GetString())
                 {
                     case "EvaluationComparison":
-                        return EvalCompareReport.DeserializeEvalCompareReport(element, options);
+                        return EvaluationComparisonInsightResult.DeserializeEvaluationComparisonInsightResult(element, options);
                     case "EvaluationRunClusterInsight":
                         return EvaluationRunClusterInsightResult.DeserializeEvaluationRunClusterInsightResult(element, options);
                     case "AgentClusterInsight":

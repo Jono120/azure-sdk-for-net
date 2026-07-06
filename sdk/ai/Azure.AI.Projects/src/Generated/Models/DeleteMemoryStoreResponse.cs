@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Memory
 {
     /// <summary> The DeleteMemoryStoreResponse. </summary>
     public partial class DeleteMemoryStoreResponse
@@ -15,33 +15,33 @@ namespace Azure.AI.Projects
 
         /// <summary> Initializes a new instance of <see cref="DeleteMemoryStoreResponse"/>. </summary>
         /// <param name="name"> The name of the memory store. </param>
-        /// <param name="deleted"> Whether the memory store was successfully deleted. </param>
-        internal DeleteMemoryStoreResponse(string name, bool deleted)
+        /// <param name="isDeleted"> Whether the memory store was successfully deleted. </param>
+        internal DeleteMemoryStoreResponse(string name, bool isDeleted)
         {
             Name = name;
-            Deleted = deleted;
+            IsDeleted = isDeleted;
         }
 
         /// <summary> Initializes a new instance of <see cref="DeleteMemoryStoreResponse"/>. </summary>
         /// <param name="object"> The object type. Always 'memory_store.deleted'. </param>
         /// <param name="name"> The name of the memory store. </param>
-        /// <param name="deleted"> Whether the memory store was successfully deleted. </param>
+        /// <param name="isDeleted"> Whether the memory store was successfully deleted. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal DeleteMemoryStoreResponse(string @object, string name, bool deleted, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal DeleteMemoryStoreResponse(MemoryStoreObjectType @object, string name, bool isDeleted, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Object = @object;
             Name = name;
-            Deleted = deleted;
+            IsDeleted = isDeleted;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> The object type. Always 'memory_store.deleted'. </summary>
-        public string Object { get; } = "memory_store.deleted";
+        public MemoryStoreObjectType Object { get; } = "memory_store.deleted";
 
         /// <summary> The name of the memory store. </summary>
         public string Name { get; }
 
         /// <summary> Whether the memory store was successfully deleted. </summary>
-        public bool Deleted { get; }
+        public bool IsDeleted { get; }
     }
 }

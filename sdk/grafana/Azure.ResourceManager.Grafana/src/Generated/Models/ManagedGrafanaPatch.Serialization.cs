@@ -36,6 +36,39 @@ namespace Azure.ResourceManager.Grafana.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ManagedGrafanaPatch>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerGrafanaContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ManagedGrafanaPatch)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ManagedGrafanaPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ManagedGrafanaPatch IPersistableModel<ManagedGrafanaPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ManagedGrafanaPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="managedGrafanaPatch"> The <see cref="ManagedGrafanaPatch"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ManagedGrafanaPatch managedGrafanaPatch)
+        {
+            if (managedGrafanaPatch == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(managedGrafanaPatch, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ManagedGrafanaPatch>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -62,7 +95,7 @@ namespace Azure.ResourceManager.Grafana.Models
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
             }
             if (Optional.IsCollectionDefined(Tags))
             {
@@ -149,7 +182,7 @@ namespace Azure.ResourceManager.Grafana.Models
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerGrafanaContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerGrafanaContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("tags"u8))
@@ -188,41 +221,6 @@ namespace Azure.ResourceManager.Grafana.Models
                 }
             }
             return new ManagedGrafanaPatch(sku, identity, tags ?? new ChangeTrackingDictionary<string, string>(), properties, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ManagedGrafanaPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ManagedGrafanaPatch>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerGrafanaContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ManagedGrafanaPatch)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ManagedGrafanaPatch IPersistableModel<ManagedGrafanaPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ManagedGrafanaPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="managedGrafanaPatch"> The <see cref="ManagedGrafanaPatch"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ManagedGrafanaPatch managedGrafanaPatch)
-        {
-            if (managedGrafanaPatch == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(managedGrafanaPatch, ModelSerializationExtensions.WireOptions);
-            return content;
         }
     }
 }

@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.KeyVault
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<KeyVaultPrivateEndpointConnectionData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerKeyVaultContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(KeyVaultPrivateEndpointConnectionData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<KeyVaultPrivateEndpointConnectionData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        KeyVaultPrivateEndpointConnectionData IPersistableModel<KeyVaultPrivateEndpointConnectionData>.Create(BinaryData data, ModelReaderWriterOptions options) => (KeyVaultPrivateEndpointConnectionData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<KeyVaultPrivateEndpointConnectionData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="keyVaultPrivateEndpointConnectionData"> The <see cref="KeyVaultPrivateEndpointConnectionData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(KeyVaultPrivateEndpointConnectionData keyVaultPrivateEndpointConnectionData)
+        {
+            if (keyVaultPrivateEndpointConnectionData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(keyVaultPrivateEndpointConnectionData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="KeyVaultPrivateEndpointConnectionData"/> from. </param>
         internal static KeyVaultPrivateEndpointConnectionData FromResponse(Response response)
         {
@@ -94,6 +127,21 @@ namespace Azure.ResourceManager.KeyVault
                 writer.WritePropertyName("etag"u8);
                 writer.WriteStringValue(ETag.Value.ToString());
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -125,11 +173,11 @@ namespace Azure.ResourceManager.KeyVault
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             PrivateEndpointConnectionProperties properties = default;
             AzureLocation? location = default;
             IReadOnlyDictionary<string, string> tags = default;
             ETag? eTag = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -222,46 +270,11 @@ namespace Azure.ResourceManager.KeyVault
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 properties,
                 location,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
-                eTag);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<KeyVaultPrivateEndpointConnectionData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<KeyVaultPrivateEndpointConnectionData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerKeyVaultContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(KeyVaultPrivateEndpointConnectionData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        KeyVaultPrivateEndpointConnectionData IPersistableModel<KeyVaultPrivateEndpointConnectionData>.Create(BinaryData data, ModelReaderWriterOptions options) => (KeyVaultPrivateEndpointConnectionData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<KeyVaultPrivateEndpointConnectionData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="keyVaultPrivateEndpointConnectionData"> The <see cref="KeyVaultPrivateEndpointConnectionData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(KeyVaultPrivateEndpointConnectionData keyVaultPrivateEndpointConnectionData)
-        {
-            if (keyVaultPrivateEndpointConnectionData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(keyVaultPrivateEndpointConnectionData, ModelSerializationExtensions.WireOptions);
-            return content;
+                eTag,
+                additionalBinaryDataProperties);
         }
     }
 }

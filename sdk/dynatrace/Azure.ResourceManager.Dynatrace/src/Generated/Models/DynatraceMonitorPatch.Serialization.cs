@@ -36,6 +36,39 @@ namespace Azure.ResourceManager.Dynatrace.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DynatraceMonitorPatch>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDynatraceContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DynatraceMonitorPatch)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DynatraceMonitorPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DynatraceMonitorPatch IPersistableModel<DynatraceMonitorPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DynatraceMonitorPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="dynatraceMonitorPatch"> The <see cref="DynatraceMonitorPatch"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(DynatraceMonitorPatch dynatraceMonitorPatch)
+        {
+            if (dynatraceMonitorPatch == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(dynatraceMonitorPatch, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DynatraceMonitorPatch>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -78,7 +111,7 @@ namespace Azure.ResourceManager.Dynatrace.Models
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -164,7 +197,7 @@ namespace Azure.ResourceManager.Dynatrace.Models
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerDynatraceContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerDynatraceContext.Default);
                     continue;
                 }
                 if (options.Format != "W")
@@ -173,41 +206,6 @@ namespace Azure.ResourceManager.Dynatrace.Models
                 }
             }
             return new DynatraceMonitorPatch(tags ?? new ChangeTrackingDictionary<string, string>(), properties, identity, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DynatraceMonitorPatch>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DynatraceMonitorPatch>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDynatraceContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DynatraceMonitorPatch)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DynatraceMonitorPatch IPersistableModel<DynatraceMonitorPatch>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DynatraceMonitorPatch>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="dynatraceMonitorPatch"> The <see cref="DynatraceMonitorPatch"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(DynatraceMonitorPatch dynatraceMonitorPatch)
-        {
-            if (dynatraceMonitorPatch == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(dynatraceMonitorPatch, ModelSerializationExtensions.WireOptions);
-            return content;
         }
     }
 }

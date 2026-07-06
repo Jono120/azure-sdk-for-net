@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.Dynatrace
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DynatraceMonitorData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDynatraceContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DynatraceMonitorData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DynatraceMonitorData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DynatraceMonitorData IPersistableModel<DynatraceMonitorData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DynatraceMonitorData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DynatraceMonitorData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="dynatraceMonitorData"> The <see cref="DynatraceMonitorData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(DynatraceMonitorData dynatraceMonitorData)
+        {
+            if (dynatraceMonitorData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(dynatraceMonitorData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="DynatraceMonitorData"/> from. </param>
         internal static DynatraceMonitorData FromResponse(Response response)
         {
@@ -75,6 +108,21 @@ namespace Azure.ResourceManager.Dynatrace
                 writer.WritePropertyName("identity"u8);
                 WriteIdentity(writer, options);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -106,11 +154,11 @@ namespace Azure.ResourceManager.Dynatrace
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             DynatraceMonitorProperties properties = default;
             ManagedServiceIdentity identity = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -191,46 +239,11 @@ namespace Azure.ResourceManager.Dynatrace
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
-                identity);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DynatraceMonitorData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DynatraceMonitorData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDynatraceContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DynatraceMonitorData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DynatraceMonitorData IPersistableModel<DynatraceMonitorData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DynatraceMonitorData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DynatraceMonitorData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="dynatraceMonitorData"> The <see cref="DynatraceMonitorData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(DynatraceMonitorData dynatraceMonitorData)
-        {
-            if (dynatraceMonitorData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(dynatraceMonitorData, ModelSerializationExtensions.WireOptions);
-            return content;
+                identity,
+                additionalBinaryDataProperties);
         }
     }
 }

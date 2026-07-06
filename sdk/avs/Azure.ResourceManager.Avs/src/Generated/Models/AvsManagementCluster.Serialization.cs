@@ -33,6 +33,29 @@ namespace Azure.ResourceManager.Avs.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<AvsManagementCluster>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerAvsContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(AvsManagementCluster)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<AvsManagementCluster>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        AvsManagementCluster IPersistableModel<AvsManagementCluster>.Create(BinaryData data, ModelReaderWriterOptions options) => (AvsManagementCluster)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<AvsManagementCluster>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<AvsManagementCluster>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -52,11 +75,6 @@ namespace Azure.ResourceManager.Avs.Models
                 throw new FormatException($"The model {nameof(AvsManagementCluster)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
-            if (Optional.IsDefined(VsanDatastoreName))
-            {
-                writer.WritePropertyName("vsanDatastoreName"u8);
-                writer.WriteStringValue(VsanDatastoreName);
-            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -89,7 +107,6 @@ namespace Azure.ResourceManager.Avs.Models
             int? clusterId = default;
             IList<string> hosts = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            string vsanDatastoreName = default;
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("clusterSize"u8))
@@ -140,46 +157,12 @@ namespace Azure.ResourceManager.Avs.Models
                     hosts = array;
                     continue;
                 }
-                if (prop.NameEquals("vsanDatastoreName"u8))
-                {
-                    vsanDatastoreName = prop.Value.GetString();
-                    continue;
-                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new AvsManagementCluster(
-                clusterSize,
-                provisioningState,
-                clusterId,
-                hosts ?? new ChangeTrackingList<string>(),
-                additionalBinaryDataProperties,
-                vsanDatastoreName);
+            return new AvsManagementCluster(clusterSize, provisioningState, clusterId, hosts ?? new ChangeTrackingList<string>(), additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<AvsManagementCluster>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<AvsManagementCluster>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerAvsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(AvsManagementCluster)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        AvsManagementCluster IPersistableModel<AvsManagementCluster>.Create(BinaryData data, ModelReaderWriterOptions options) => (AvsManagementCluster)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<AvsManagementCluster>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

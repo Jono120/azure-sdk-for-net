@@ -4,13 +4,15 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Azure.AI.Projects
 {
     /// <summary> Client options for <see cref="AIProjectClient"/>. </summary>
     public partial class AIProjectClientOptions : ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V2025_11_15_Preview;
+        private const ServiceVersion LatestVersion = ServiceVersion.V1;
 
         /// <summary> Initializes a new instance of AIProjectClientOptions. </summary>
         /// <param name="version"> The service version. </param>
@@ -20,9 +22,29 @@ namespace Azure.AI.Projects
             {
                 ServiceVersion.V2025_05_01 => "2025-05-01",
                 ServiceVersion.V1 => "v1",
-                ServiceVersion.V2025_11_15_Preview => "2025-11-15-preview",
                 _ => throw new NotSupportedException()
             };
+        }
+
+        /// <summary> Initializes a new instance of AIProjectClientOptions from configuration. </summary>
+        /// <param name="section"> The configuration section. </param>
+        [Experimental("SCME0002")]
+        internal AIProjectClientOptions(IConfigurationSection section) : base(section)
+        {
+            Version = "v1";
+            if (section is null || !section.Exists())
+            {
+                return;
+            }
+            if (section["Version"] is string version)
+            {
+                Version = version;
+            }
+            string userAgentApplicationId = section["UserAgentApplicationId"];
+            if (!string.IsNullOrEmpty(userAgentApplicationId))
+            {
+                UserAgentApplicationId = userAgentApplicationId;
+            }
         }
 
         /// <summary> Gets the Version. </summary>
@@ -33,10 +55,8 @@ namespace Azure.AI.Projects
         {
             /// <summary> Azure AI API version 2025-05-01. </summary>
             V2025_05_01 = 1,
-            /// <summary> Azure AI API version v1. </summary>
-            V1 = 2,
-            /// <summary> Microsoft Foundry API version 2025-11-15-preview. </summary>
-            V2025_11_15_Preview = 3
+            /// <summary> Microsoft Foundry API version v1. </summary>
+            V1 = 2
         }
     }
 }

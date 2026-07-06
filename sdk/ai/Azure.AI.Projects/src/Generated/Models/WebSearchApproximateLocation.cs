@@ -25,7 +25,7 @@ namespace Azure.AI.Projects
         /// <param name="city"></param>
         /// <param name="timezone"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal WebSearchApproximateLocation(WebSearchApproximateLocationType? @type, string country, string region, string city, string timezone, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal WebSearchApproximateLocation(string @type, string country, string region, string city, string timezone, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Type = @type;
             Country = country;
@@ -36,7 +36,7 @@ namespace Azure.AI.Projects
         }
 
         /// <summary> The type of location approximation. Always `approximate`. </summary>
-        public WebSearchApproximateLocationType? Type { get; set; }
+        public string Type { get; } = "approximate";
 
         /// <summary> Gets or sets the Country. </summary>
         public string Country { get; set; }

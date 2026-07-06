@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.Hci.Vm
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<HciVmMarketplaceGalleryImageData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHciVmContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(HciVmMarketplaceGalleryImageData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<HciVmMarketplaceGalleryImageData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        HciVmMarketplaceGalleryImageData IPersistableModel<HciVmMarketplaceGalleryImageData>.Create(BinaryData data, ModelReaderWriterOptions options) => (HciVmMarketplaceGalleryImageData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<HciVmMarketplaceGalleryImageData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="hciVmMarketplaceGalleryImageData"> The <see cref="HciVmMarketplaceGalleryImageData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(HciVmMarketplaceGalleryImageData hciVmMarketplaceGalleryImageData)
+        {
+            if (hciVmMarketplaceGalleryImageData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(hciVmMarketplaceGalleryImageData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="HciVmMarketplaceGalleryImageData"/> from. </param>
         internal static HciVmMarketplaceGalleryImageData FromResponse(Response response)
         {
@@ -78,6 +111,21 @@ namespace Azure.ResourceManager.Hci.Vm
                 writer.WritePropertyName("extendedLocation"u8);
                 writer.WriteObjectValue(ExtendedLocation, options);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -109,11 +157,11 @@ namespace Azure.ResourceManager.Hci.Vm
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             HciVmMarketplaceGalleryImageProperties properties = default;
             HciVmExtendedLocation extendedLocation = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -202,46 +250,11 @@ namespace Azure.ResourceManager.Hci.Vm
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
-                extendedLocation);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<HciVmMarketplaceGalleryImageData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<HciVmMarketplaceGalleryImageData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHciVmContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(HciVmMarketplaceGalleryImageData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        HciVmMarketplaceGalleryImageData IPersistableModel<HciVmMarketplaceGalleryImageData>.Create(BinaryData data, ModelReaderWriterOptions options) => (HciVmMarketplaceGalleryImageData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<HciVmMarketplaceGalleryImageData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="hciVmMarketplaceGalleryImageData"> The <see cref="HciVmMarketplaceGalleryImageData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(HciVmMarketplaceGalleryImageData hciVmMarketplaceGalleryImageData)
-        {
-            if (hciVmMarketplaceGalleryImageData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(hciVmMarketplaceGalleryImageData, ModelSerializationExtensions.WireOptions);
-            return content;
+                extendedLocation,
+                additionalBinaryDataProperties);
         }
     }
 }

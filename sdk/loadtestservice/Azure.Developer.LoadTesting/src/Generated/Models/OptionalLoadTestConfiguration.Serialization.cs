@@ -101,7 +101,7 @@ namespace Azure.Developer.LoadTesting
             if (Optional.IsDefined(Duration))
             {
                 writer.WritePropertyName("duration"u8);
-                writer.WriteNumberValue(Convert.ToInt32(Duration.Value.TotalSeconds));
+                writer.WriteNumberValue(Convert.ToInt32(Math.Round(Duration.Value.TotalSeconds)));
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -160,7 +160,7 @@ namespace Azure.Developer.LoadTesting
                     {
                         continue;
                     }
-                    endpointUri = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
+                    endpointUri = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString(), UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if (prop.NameEquals("requestsPerSecond"u8))

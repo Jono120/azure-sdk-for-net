@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.DurableTask
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DurableTaskRetentionPolicyData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDurableTaskContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DurableTaskRetentionPolicyData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DurableTaskRetentionPolicyData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DurableTaskRetentionPolicyData IPersistableModel<DurableTaskRetentionPolicyData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DurableTaskRetentionPolicyData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DurableTaskRetentionPolicyData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="durableTaskRetentionPolicyData"> The <see cref="DurableTaskRetentionPolicyData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(DurableTaskRetentionPolicyData durableTaskRetentionPolicyData)
+        {
+            if (durableTaskRetentionPolicyData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(durableTaskRetentionPolicyData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="DurableTaskRetentionPolicyData"/> from. </param>
         internal static DurableTaskRetentionPolicyData FromResponse(Response response)
         {
@@ -67,6 +100,21 @@ namespace Azure.ResourceManager.DurableTask
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +147,8 @@ namespace Azure.ResourceManager.DurableTask
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             DurableTaskRetentionPolicyProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,43 +202,8 @@ namespace Azure.ResourceManager.DurableTask
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DurableTaskRetentionPolicyData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<DurableTaskRetentionPolicyData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerDurableTaskContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(DurableTaskRetentionPolicyData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        DurableTaskRetentionPolicyData IPersistableModel<DurableTaskRetentionPolicyData>.Create(BinaryData data, ModelReaderWriterOptions options) => (DurableTaskRetentionPolicyData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DurableTaskRetentionPolicyData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="durableTaskRetentionPolicyData"> The <see cref="DurableTaskRetentionPolicyData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(DurableTaskRetentionPolicyData durableTaskRetentionPolicyData)
-        {
-            if (durableTaskRetentionPolicyData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(durableTaskRetentionPolicyData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

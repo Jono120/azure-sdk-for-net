@@ -40,6 +40,39 @@ namespace Azure.ResourceManager.StorageActions.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<StorageTaskPreviewAction>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageActionsContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(StorageTaskPreviewAction)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<StorageTaskPreviewAction>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        StorageTaskPreviewAction IPersistableModel<StorageTaskPreviewAction>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<StorageTaskPreviewAction>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="storageTaskPreviewAction"> The <see cref="StorageTaskPreviewAction"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(StorageTaskPreviewAction storageTaskPreviewAction)
+        {
+            if (storageTaskPreviewAction == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(storageTaskPreviewAction, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="StorageTaskPreviewAction"/> from. </param>
         internal static StorageTaskPreviewAction FromResponse(Response response)
         {
@@ -124,41 +157,6 @@ namespace Azure.ResourceManager.StorageActions.Models
                 }
             }
             return new StorageTaskPreviewAction(properties, additionalBinaryDataProperties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<StorageTaskPreviewAction>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<StorageTaskPreviewAction>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageActionsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(StorageTaskPreviewAction)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        StorageTaskPreviewAction IPersistableModel<StorageTaskPreviewAction>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<StorageTaskPreviewAction>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="storageTaskPreviewAction"> The <see cref="StorageTaskPreviewAction"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(StorageTaskPreviewAction storageTaskPreviewAction)
-        {
-            if (storageTaskPreviewAction == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(storageTaskPreviewAction, ModelSerializationExtensions.WireOptions);
-            return content;
         }
     }
 }

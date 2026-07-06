@@ -9,9 +9,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Azure.AI.Projects;
 
-namespace Azure.Core.Foundations
+namespace Azure.AI.Projects.Evaluation
 {
-    /// <summary> Paged collection of Schedule items. </summary>
     internal partial class PagedSchedule : IJsonModel<PagedSchedule>
     {
         /// <summary> Initializes a new instance of <see cref="PagedSchedule"/> for deserialization. </summary>
@@ -87,7 +86,7 @@ namespace Azure.Core.Foundations
             }
             writer.WritePropertyName("value"u8);
             writer.WriteStartArray();
-            foreach (Schedule item in Value)
+            foreach (ProjectsSchedule item in Value)
             {
                 writer.WriteObjectValue(item, options);
             }
@@ -139,18 +138,17 @@ namespace Azure.Core.Foundations
             {
                 return null;
             }
-            IList<Schedule> value = default;
+            IList<ProjectsSchedule> value = default;
             Uri nextLink = default;
-            string clientRequestId = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("value"u8))
                 {
-                    List<Schedule> array = new List<Schedule>();
+                    List<ProjectsSchedule> array = new List<ProjectsSchedule>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(Schedule.DeserializeSchedule(item, options));
+                        array.Add(ProjectsSchedule.DeserializeProjectsSchedule(item, options));
                     }
                     value = array;
                     continue;
@@ -161,7 +159,7 @@ namespace Azure.Core.Foundations
                     {
                         continue;
                     }
-                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString());
+                    nextLink = string.IsNullOrEmpty(prop.Value.GetString()) ? null : new Uri(prop.Value.GetString(), UriKind.RelativeOrAbsolute);
                     continue;
                 }
                 if (options.Format != "W")
@@ -169,7 +167,7 @@ namespace Azure.Core.Foundations
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new PagedSchedule(value, nextLink, clientRequestId, additionalBinaryDataProperties);
+            return new PagedSchedule(value, nextLink, additionalBinaryDataProperties);
         }
     }
 }

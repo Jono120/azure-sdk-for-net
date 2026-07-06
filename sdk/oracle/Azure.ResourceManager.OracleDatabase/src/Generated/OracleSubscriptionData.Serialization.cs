@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.OracleDatabase
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<OracleSubscriptionData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerOracleDatabaseContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(OracleSubscriptionData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<OracleSubscriptionData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        OracleSubscriptionData IPersistableModel<OracleSubscriptionData>.Create(BinaryData data, ModelReaderWriterOptions options) => (OracleSubscriptionData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<OracleSubscriptionData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="oracleSubscriptionData"> The <see cref="OracleSubscriptionData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(OracleSubscriptionData oracleSubscriptionData)
+        {
+            if (oracleSubscriptionData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(oracleSubscriptionData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="OracleSubscriptionData"/> from. </param>
         internal static OracleSubscriptionData FromResponse(Response response)
         {
@@ -73,6 +106,21 @@ namespace Azure.ResourceManager.OracleDatabase
                 writer.WritePropertyName("plan"u8);
                 SerializePlan(writer, options);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -104,9 +152,9 @@ namespace Azure.ResourceManager.OracleDatabase
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             OracleSubscriptionProperties properties = default;
             ArmPlan plan = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -165,44 +213,9 @@ namespace Azure.ResourceManager.OracleDatabase
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 properties,
-                plan);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<OracleSubscriptionData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<OracleSubscriptionData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerOracleDatabaseContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(OracleSubscriptionData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        OracleSubscriptionData IPersistableModel<OracleSubscriptionData>.Create(BinaryData data, ModelReaderWriterOptions options) => (OracleSubscriptionData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<OracleSubscriptionData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="oracleSubscriptionData"> The <see cref="OracleSubscriptionData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(OracleSubscriptionData oracleSubscriptionData)
-        {
-            if (oracleSubscriptionData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(oracleSubscriptionData, ModelSerializationExtensions.WireOptions);
-            return content;
+                plan,
+                additionalBinaryDataProperties);
         }
     }
 }

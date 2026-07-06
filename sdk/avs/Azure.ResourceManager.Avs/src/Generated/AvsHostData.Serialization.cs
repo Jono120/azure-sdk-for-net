@@ -37,6 +37,29 @@ namespace Azure.ResourceManager.Avs
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<AvsHostData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerAvsContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(AvsHostData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<AvsHostData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        AvsHostData IPersistableModel<AvsHostData>.Create(BinaryData data, ModelReaderWriterOptions options) => (AvsHostData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<AvsHostData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="AvsHostData"/> from. </param>
         internal static AvsHostData FromResponse(Response response)
         {
@@ -88,6 +111,21 @@ namespace Azure.ResourceManager.Avs
                 writer.WritePropertyName("sku"u8);
                 writer.WriteObjectValue(Sku, options);
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -119,10 +157,10 @@ namespace Azure.ResourceManager.Avs
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             AvsHostProperties properties = default;
             IReadOnlyList<string> zones = default;
             AvsSku sku = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -206,33 +244,10 @@ namespace Azure.ResourceManager.Avs
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 properties,
                 zones ?? new ChangeTrackingList<string>(),
-                sku);
+                sku,
+                additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<AvsHostData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<AvsHostData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerAvsContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(AvsHostData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        AvsHostData IPersistableModel<AvsHostData>.Create(BinaryData data, ModelReaderWriterOptions options) => (AvsHostData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<AvsHostData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

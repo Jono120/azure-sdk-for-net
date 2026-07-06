@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.HybridConnectivity
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<HybridConnectivityServiceConfigurationData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHybridConnectivityContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(HybridConnectivityServiceConfigurationData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<HybridConnectivityServiceConfigurationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        HybridConnectivityServiceConfigurationData IPersistableModel<HybridConnectivityServiceConfigurationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (HybridConnectivityServiceConfigurationData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<HybridConnectivityServiceConfigurationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="hybridConnectivityServiceConfigurationData"> The <see cref="HybridConnectivityServiceConfigurationData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(HybridConnectivityServiceConfigurationData hybridConnectivityServiceConfigurationData)
+        {
+            if (hybridConnectivityServiceConfigurationData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(hybridConnectivityServiceConfigurationData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="HybridConnectivityServiceConfigurationData"/> from. </param>
         internal static HybridConnectivityServiceConfigurationData FromResponse(Response response)
         {
@@ -67,6 +100,21 @@ namespace Azure.ResourceManager.HybridConnectivity
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -99,8 +147,8 @@ namespace Azure.ResourceManager.HybridConnectivity
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             ServiceConfigurationProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -154,43 +202,8 @@ namespace Azure.ResourceManager.HybridConnectivity
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<HybridConnectivityServiceConfigurationData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<HybridConnectivityServiceConfigurationData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHybridConnectivityContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(HybridConnectivityServiceConfigurationData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        HybridConnectivityServiceConfigurationData IPersistableModel<HybridConnectivityServiceConfigurationData>.Create(BinaryData data, ModelReaderWriterOptions options) => (HybridConnectivityServiceConfigurationData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<HybridConnectivityServiceConfigurationData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="hybridConnectivityServiceConfigurationData"> The <see cref="HybridConnectivityServiceConfigurationData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(HybridConnectivityServiceConfigurationData hybridConnectivityServiceConfigurationData)
-        {
-            if (hybridConnectivityServiceConfigurationData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(hybridConnectivityServiceConfigurationData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

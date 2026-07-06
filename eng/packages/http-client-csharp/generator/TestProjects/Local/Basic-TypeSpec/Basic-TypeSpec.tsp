@@ -433,7 +433,6 @@ model Plant {
 }
 
 @doc("Tree is a specific type of plant")
-@usage(Usage.xml | Usage.output | Usage.json)
 model Tree extends Plant {
   species: "tree";
 
@@ -726,6 +725,14 @@ interface PlantOperations {
     @body body: Tree;
   };
 
+  @doc("Get a tree as a plant")
+  @get
+  @route("/tree/as-plant/json")
+  getTreeAsJson(): {
+    @header contentType: "application/json";
+    @body body: Tree;
+  };
+
   @doc("Update a tree as a plant")
   @put
   @route("/tree/as-plant")
@@ -733,4 +740,42 @@ interface PlantOperations {
     @header contentType: "application/xml";
     @body body: Tree;
   };
+
+  @doc("Update a tree as a plant")
+  @put
+  @route("/tree/as-plant/json")
+  updateTreeAsJson(@body tree: Tree, @header contentType: "application/json"): {
+    @header contentType: "application/json";
+    @body body: Tree;
+  };
 }
+
+
+model Cat {
+  id: HttpPart<string>;
+  boolPart: HttpPart<boolean>;
+  int32Part: HttpPart<int32>;
+  int64Part: HttpPart<int64>;
+  float32Part: HttpPart<float32>;
+  float64Part: HttpPart<float64>;
+  decimalPart: HttpPart<decimal128>;
+  int8Part: HttpPart<int8>;
+  uint8Part: HttpPart<uint8>;
+  dictionaryPart: HttpPart<Record<string>>;
+  dictionaryModelPart: HttpPart<Record<ThingModel>>;
+  listPart: HttpPart<string[]>;
+  listModelPart: HttpPart<ThingModel[]>;
+  multipleListPart: HttpPart<string>[];
+  profileImage: HttpPart<File>;
+  extensibleEnumPart: HttpPart<StringExtensibleEnum>;
+  fixedEnumPart: HttpPart<StringFixedEnum>;
+  intExtensibleEnumPart: HttpPart<IntExtensibleEnum>;
+  intFixedEnumPart: HttpPart<IntFixedEnum>;
+}
+
+@post
+@route("/cats")
+op uploadCat(
+  @header contentType: "multipart/form-data",
+  @multipartBody body: Cat,
+): NoContentResponse;

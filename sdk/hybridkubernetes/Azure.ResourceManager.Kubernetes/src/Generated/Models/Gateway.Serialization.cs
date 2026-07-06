@@ -33,6 +33,29 @@ namespace Azure.ResourceManager.Kubernetes.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Gateway>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerKubernetesContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Gateway)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Gateway>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Gateway IPersistableModel<Gateway>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Gateway>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<Gateway>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -51,10 +74,10 @@ namespace Azure.ResourceManager.Kubernetes.Models
             {
                 throw new FormatException($"The model {nameof(Gateway)} does not support writing '{format}' format.");
             }
-            if (Optional.IsDefined(Enabled))
+            if (Optional.IsDefined(IsGatewayEnabled))
             {
                 writer.WritePropertyName("enabled"u8);
-                writer.WriteBooleanValue(Enabled.Value);
+                writer.WriteBooleanValue(IsGatewayEnabled.Value);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -98,7 +121,7 @@ namespace Azure.ResourceManager.Kubernetes.Models
             {
                 return null;
             }
-            bool? enabled = default;
+            bool? isGatewayEnabled = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -108,7 +131,7 @@ namespace Azure.ResourceManager.Kubernetes.Models
                     {
                         continue;
                     }
-                    enabled = prop.Value.GetBoolean();
+                    isGatewayEnabled = prop.Value.GetBoolean();
                     continue;
                 }
                 if (options.Format != "W")
@@ -116,30 +139,7 @@ namespace Azure.ResourceManager.Kubernetes.Models
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new Gateway(enabled, additionalBinaryDataProperties);
+            return new Gateway(isGatewayEnabled, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<Gateway>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<Gateway>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerKubernetesContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(Gateway)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        Gateway IPersistableModel<Gateway>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<Gateway>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

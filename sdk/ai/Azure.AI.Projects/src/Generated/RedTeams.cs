@@ -7,8 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.AI.Projects;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Evaluation
 {
     /// <summary> The RedTeams sub-client. </summary>
     public partial class RedTeams
@@ -36,7 +37,7 @@ namespace Azure.AI.Projects
         public ClientPipeline Pipeline { get; }
 
         /// <summary>
-        /// [Protocol Method] Get a redteam by name.
+        /// [Protocol Method] Retrieves the specified redteam and its configuration.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -58,7 +59,7 @@ namespace Azure.AI.Projects
         }
 
         /// <summary>
-        /// [Protocol Method] Get a redteam by name.
+        /// [Protocol Method] Retrieves the specified redteam and its configuration.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -79,7 +80,7 @@ namespace Azure.AI.Projects
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        /// <summary> Get a redteam by name. </summary>
+        /// <summary> Retrieves the specified redteam and its configuration. </summary>
         /// <param name="name"> Identifier of the red team run. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
@@ -93,7 +94,7 @@ namespace Azure.AI.Projects
             return ClientResult.FromValue((RedTeam)result, result.GetRawResponse());
         }
 
-        /// <summary> Get a redteam by name. </summary>
+        /// <summary> Retrieves the specified redteam and its configuration. </summary>
         /// <param name="name"> Identifier of the red team run. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
@@ -108,7 +109,7 @@ namespace Azure.AI.Projects
         }
 
         /// <summary>
-        /// [Protocol Method] List a redteam by name.
+        /// [Protocol Method] Returns the redteams available in the current project.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -124,7 +125,7 @@ namespace Azure.AI.Projects
         }
 
         /// <summary>
-        /// [Protocol Method] List a redteam by name.
+        /// [Protocol Method] Returns the redteams available in the current project.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -139,7 +140,7 @@ namespace Azure.AI.Projects
             return new RedTeamsGetAllAsyncCollectionResult(this, options);
         }
 
-        /// <summary> List a redteam by name. </summary>
+        /// <summary> Returns the redteams available in the current project. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<RedTeam> GetAll(CancellationToken cancellationToken = default)
@@ -147,7 +148,7 @@ namespace Azure.AI.Projects
             return new RedTeamsGetAllCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
-        /// <summary> List a redteam by name. </summary>
+        /// <summary> Returns the redteams available in the current project. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<RedTeam> GetAllAsync(CancellationToken cancellationToken = default)
@@ -156,7 +157,7 @@ namespace Azure.AI.Projects
         }
 
         /// <summary>
-        /// [Protocol Method] Creates a redteam run.
+        /// [Protocol Method] Submits a new redteam run for execution with the provided configuration.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -177,7 +178,7 @@ namespace Azure.AI.Projects
         }
 
         /// <summary>
-        /// [Protocol Method] Creates a redteam run.
+        /// [Protocol Method] Submits a new redteam run for execution with the provided configuration.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -197,7 +198,7 @@ namespace Azure.AI.Projects
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        /// <summary> Creates a redteam run. </summary>
+        /// <summary> Submits a new redteam run for execution with the provided configuration. </summary>
         /// <param name="redTeam"> Redteam to be run. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="redTeam"/> is null. </exception>
@@ -210,7 +211,7 @@ namespace Azure.AI.Projects
             return ClientResult.FromValue((RedTeam)result, result.GetRawResponse());
         }
 
-        /// <summary> Creates a redteam run. </summary>
+        /// <summary> Submits a new redteam run for execution with the provided configuration. </summary>
         /// <param name="redTeam"> Redteam to be run. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="redTeam"/> is null. </exception>

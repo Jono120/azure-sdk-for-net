@@ -13,6 +13,7 @@ namespace Azure.AI.Projects
         private readonly string _value;
         private const string FunctionValue = "function";
         private const string FileSearchValue = "file_search";
+        private const string ComputerValue = "computer";
         private const string ComputerUsePreviewValue = "computer_use_preview";
         private const string WebSearchValue = "web_search";
         private const string McpValue = "mcp";
@@ -21,6 +22,8 @@ namespace Azure.AI.Projects
         private const string LocalShellValue = "local_shell";
         private const string ShellValue = "shell";
         private const string CustomValue = "custom";
+        private const string NamespaceValue = "namespace";
+        private const string ToolSearchValue = "tool_search";
         private const string WebSearchPreviewValue = "web_search_preview";
         private const string ApplyPatchValue = "apply_patch";
         private const string A2aPreviewValue = "a2a_preview";
@@ -28,12 +31,16 @@ namespace Azure.AI.Projects
         private const string BrowserAutomationPreviewValue = "browser_automation_preview";
         private const string FabricDataagentPreviewValue = "fabric_dataagent_preview";
         private const string SharepointGroundingPreviewValue = "sharepoint_grounding_preview";
+        private const string MemorySearchPreviewValue = "memory_search_preview";
+        private const string ReminderPreviewValue = "reminder_preview";
+        private const string WorkIqPreviewValue = "work_iq_preview";
+        private const string FabricIqPreviewValue = "fabric_iq_preview";
+        private const string ToolboxSearchPreviewValue = "toolbox_search_preview";
         private const string AzureAiSearchValue = "azure_ai_search";
         private const string AzureFunctionValue = "azure_function";
         private const string BingGroundingValue = "bing_grounding";
         private const string CaptureStructuredOutputsValue = "capture_structured_outputs";
         private const string OpenapiValue = "openapi";
-        private const string MemorySearchValue = "memory_search";
 
         /// <summary> Initializes a new instance of <see cref="ToolType"/>. </summary>
         /// <param name="value"> The value. </param>
@@ -50,6 +57,9 @@ namespace Azure.AI.Projects
 
         /// <summary> Gets the FileSearch. </summary>
         public static ToolType FileSearch { get; } = new ToolType(FileSearchValue);
+
+        /// <summary> Gets the Computer. </summary>
+        public static ToolType Computer { get; } = new ToolType(ComputerValue);
 
         /// <summary> Gets the ComputerUsePreview. </summary>
         public static ToolType ComputerUsePreview { get; } = new ToolType(ComputerUsePreviewValue);
@@ -75,6 +85,12 @@ namespace Azure.AI.Projects
         /// <summary> Gets the Custom. </summary>
         public static ToolType Custom { get; } = new ToolType(CustomValue);
 
+        /// <summary> Gets the Namespace. </summary>
+        public static ToolType Namespace { get; } = new ToolType(NamespaceValue);
+
+        /// <summary> Gets the ToolSearch. </summary>
+        public static ToolType ToolSearch { get; } = new ToolType(ToolSearchValue);
+
         /// <summary> Gets the WebSearchPreview. </summary>
         public static ToolType WebSearchPreview { get; } = new ToolType(WebSearchPreviewValue);
 
@@ -96,6 +112,21 @@ namespace Azure.AI.Projects
         /// <summary> Gets the SharepointGroundingPreview. </summary>
         public static ToolType SharepointGroundingPreview { get; } = new ToolType(SharepointGroundingPreviewValue);
 
+        /// <summary> Gets the MemorySearchPreview. </summary>
+        public static ToolType MemorySearchPreview { get; } = new ToolType(MemorySearchPreviewValue);
+
+        /// <summary> Gets the ReminderPreview. </summary>
+        public static ToolType ReminderPreview { get; } = new ToolType(ReminderPreviewValue);
+
+        /// <summary> Gets the WorkIqPreview. </summary>
+        public static ToolType WorkIqPreview { get; } = new ToolType(WorkIqPreviewValue);
+
+        /// <summary> Gets the FabricIqPreview. </summary>
+        public static ToolType FabricIqPreview { get; } = new ToolType(FabricIqPreviewValue);
+
+        /// <summary> Gets the ToolboxSearchPreview. </summary>
+        public static ToolType ToolboxSearchPreview { get; } = new ToolType(ToolboxSearchPreviewValue);
+
         /// <summary> Gets the AzureAiSearch. </summary>
         public static ToolType AzureAiSearch { get; } = new ToolType(AzureAiSearchValue);
 
@@ -110,9 +141,6 @@ namespace Azure.AI.Projects
 
         /// <summary> Gets the Openapi. </summary>
         public static ToolType Openapi { get; } = new ToolType(OpenapiValue);
-
-        /// <summary> Gets the MemorySearch. </summary>
-        public static ToolType MemorySearch { get; } = new ToolType(MemorySearchValue);
 
         /// <summary> Determines if two <see cref="ToolType"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>

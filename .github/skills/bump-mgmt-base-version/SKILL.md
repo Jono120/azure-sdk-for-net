@@ -30,7 +30,7 @@ Check the current versions in these two files:
 | File | Field | Purpose |
 |------|-------|---------|
 | `eng/packages/http-client-csharp-mgmt/package.json` | `dependencies["@azure-typespec/http-client-csharp"]` | Emitter npm dependency |
-| `eng/Packages.Data.props` | `<AzureGeneratorVersion>` | Generator NuGet dependency (used by `Azure.Generator.Management.csproj` via `<PackageReference Include="Azure.Generator" />`) |
+| `eng/centralpackagemanagement/Directory.Generation.Packages.props` | `<AzureGeneratorVersion>` | Generator NuGet dependency (used by `Azure.Generator.Management.csproj` via `<PackageReference Include="Azure.Generator" />`) |
 
 If both already match the target version, no update is needed — inform the user and stop.
 
@@ -39,7 +39,7 @@ If both already match the target version, no update is needed — inform the use
 Update **both** files to the target version:
 
 1. **`eng/packages/http-client-csharp-mgmt/package.json`**: Change the `@azure-typespec/http-client-csharp` version in `dependencies`.
-2. **`eng/Packages.Data.props`**: Change the `<AzureGeneratorVersion>` value.
+2. **`eng/centralpackagemanagement/Directory.Generation.Packages.props`**: Change the `<AzureGeneratorVersion>` value.
 
 ### 4. Run npm install
 
@@ -83,7 +83,7 @@ cd eng/packages/http-client-csharp-mgmt
 npm run build:generator
 ```
 
-This runs `dotnet build ./generator`. The `Azure.Generator.Management` project references the `Azure.Generator` NuGet package, whose version is controlled by `AzureGeneratorVersion` in `Packages.Data.props`.
+This runs `dotnet build ./generator`. The `Azure.Generator.Management` project references the `Azure.Generator` NuGet package, whose version is controlled by `AzureGeneratorVersion` in `eng/centralpackagemanagement/Directory.Generation.Packages.props`.
 
 If C# compilation fails, examine the errors — they likely indicate breaking API changes in the `Azure.Generator` package. Fix the generator source code under `eng/packages/http-client-csharp-mgmt/generator/Azure.Generator.Management/` accordingly.
 
@@ -100,10 +100,18 @@ This script:
 
 If regeneration produces file changes, they must be included in the commit.
 
-### 9. Verify
+### 9. Refresh the Emitter Version Dashboard
+
+```shell
+pwsh doc/GeneratorVersions/Emitter_Version_Dashboard.ps1
+```
+
+This regenerates `doc/GeneratorVersions/Emitter_Version_Dashboard.md` so the documented dependency chain matches the updated package.json versions. The updated dashboard file must be included in the commit.
+
+### 10. Verify
 
 - Run `git status` to see all modified files
-- Ensure `package.json`, `package-lock.json`, `Packages.Data.props`, and any regenerated test project files are included
+- Ensure `package.json`, `package-lock.json`, `Directory.Generation.Packages.props`, `Emitter_Version_Dashboard.md`, and any regenerated test project files are included
 - All changes should be committed together
 
 ## Key Files Reference
@@ -113,7 +121,9 @@ If regeneration produces file changes, they must be included in the commit.
 | `eng/azure-typespec-http-client-csharp-emitter-package.json` | Source of truth for latest base version |
 | `eng/packages/http-client-csharp-mgmt/package.json` | Mgmt emitter npm dependencies |
 | `eng/packages/http-client-csharp-mgmt/package-lock.json` | Resolved npm dependency tree |
-| `eng/Packages.Data.props` | NuGet version properties (AzureGeneratorVersion) |
+| `eng/centralpackagemanagement/Directory.Generation.Packages.props` | NuGet version properties (AzureGeneratorVersion) |
 | `eng/packages/http-client-csharp-mgmt/generator/Azure.Generator.Management/src/Azure.Generator.Management.csproj` | Generator project referencing Azure.Generator |
 | `eng/packages/http-client-csharp-mgmt/eng/scripts/Generate.ps1` | Test project regeneration script |
 | `eng/packages/http-client-csharp-mgmt/eng/scripts/Generation.psm1` | Build and generation helper functions |
+| `doc/GeneratorVersions/Emitter_Version_Dashboard.ps1` | Script to regenerate the version dashboard |
+| `doc/GeneratorVersions/Emitter_Version_Dashboard.md` | Emitter dependency version dashboard |

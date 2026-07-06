@@ -33,6 +33,29 @@ namespace Azure.ResourceManager.Chaos.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ExperimentExecutionDetailsProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerChaosContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ExperimentExecutionDetailsProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ExperimentExecutionDetailsProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ExperimentExecutionDetailsProperties IPersistableModel<ExperimentExecutionDetailsProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ExperimentExecutionDetailsProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ExperimentExecutionDetailsProperties>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -65,6 +88,11 @@ namespace Azure.ResourceManager.Chaos.Models
             {
                 writer.WritePropertyName("stoppedAt"u8);
                 writer.WriteStringValue(StoppedOn.Value, "O");
+            }
+            if (options.Format != "W" && Optional.IsDefined(ProvisioningState))
+            {
+                writer.WritePropertyName("provisioningState"u8);
+                writer.WriteStringValue(ProvisioningState.Value.ToString());
             }
             if (options.Format != "W" && Optional.IsDefined(FailureReason))
             {
@@ -126,6 +154,7 @@ namespace Azure.ResourceManager.Chaos.Models
             string status = default;
             DateTimeOffset? startedOn = default;
             DateTimeOffset? stoppedOn = default;
+            ChaosProvisioningState? provisioningState = default;
             string failureReason = default;
             DateTimeOffset? lastActionOn = default;
             ExperimentExecutionDetailsPropertiesRunInformation runInformation = default;
@@ -153,6 +182,15 @@ namespace Azure.ResourceManager.Chaos.Models
                         continue;
                     }
                     stoppedOn = prop.Value.GetDateTimeOffset("O");
+                    continue;
+                }
+                if (prop.NameEquals("provisioningState"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    provisioningState = new ChaosProvisioningState(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("failureReason"u8))
@@ -187,33 +225,11 @@ namespace Azure.ResourceManager.Chaos.Models
                 status,
                 startedOn,
                 stoppedOn,
+                provisioningState,
                 failureReason,
                 lastActionOn,
                 runInformation,
                 additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ExperimentExecutionDetailsProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ExperimentExecutionDetailsProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerChaosContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ExperimentExecutionDetailsProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ExperimentExecutionDetailsProperties IPersistableModel<ExperimentExecutionDetailsProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ExperimentExecutionDetailsProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

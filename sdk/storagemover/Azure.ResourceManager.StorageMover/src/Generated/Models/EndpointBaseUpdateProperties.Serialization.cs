@@ -14,7 +14,7 @@ namespace Azure.ResourceManager.StorageMover.Models
 {
     /// <summary>
     /// The Endpoint resource, which contains information about file sources and targets.
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="AzureStorageBlobContainerEndpointUpdateProperties"/>, <see cref="NfsMountEndpointUpdateProperties"/>, <see cref="AzureStorageSmbFileShareEndpointUpdateProperties"/>, <see cref="AzureStorageNfsFileShareEndpointUpdateProperties"/>, <see cref="AzureMultiCloudConnectorEndpointUpdateProperties"/>, and <see cref="SmbMountEndpointUpdateProperties"/>.
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="AzureStorageBlobContainerEndpointUpdateProperties"/>, <see cref="S3WithHmacEndpointUpdateProperties"/>, <see cref="NfsMountEndpointUpdateProperties"/>, <see cref="AzureStorageSmbFileShareEndpointUpdateProperties"/>, <see cref="AzureStorageNfsFileShareEndpointUpdateProperties"/>, <see cref="AzureMultiCloudConnectorEndpointUpdateProperties"/>, and <see cref="SmbMountEndpointUpdateProperties"/>.
     /// </summary>
     [PersistableModelProxy(typeof(UnknownEndpointBaseUpdateProperties))]
     public abstract partial class EndpointBaseUpdateProperties : IJsonModel<EndpointBaseUpdateProperties>
@@ -35,6 +35,29 @@ namespace Azure.ResourceManager.StorageMover.Models
                     throw new FormatException($"The model {nameof(EndpointBaseUpdateProperties)} does not support reading '{options.Format}' format.");
             }
         }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<EndpointBaseUpdateProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageMoverContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(EndpointBaseUpdateProperties)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<EndpointBaseUpdateProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        EndpointBaseUpdateProperties IPersistableModel<EndpointBaseUpdateProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<EndpointBaseUpdateProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -109,6 +132,8 @@ namespace Azure.ResourceManager.StorageMover.Models
                 {
                     case "AzureStorageBlobContainer":
                         return AzureStorageBlobContainerEndpointUpdateProperties.DeserializeAzureStorageBlobContainerEndpointUpdateProperties(element, options);
+                    case "S3WithHMAC":
+                        return S3WithHmacEndpointUpdateProperties.DeserializeS3WithHmacEndpointUpdateProperties(element, options);
                     case "NfsMount":
                         return NfsMountEndpointUpdateProperties.DeserializeNfsMountEndpointUpdateProperties(element, options);
                     case "AzureStorageSmbFileShare":
@@ -123,28 +148,5 @@ namespace Azure.ResourceManager.StorageMover.Models
             }
             return UnknownEndpointBaseUpdateProperties.DeserializeUnknownEndpointBaseUpdateProperties(element, options);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<EndpointBaseUpdateProperties>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EndpointBaseUpdateProperties>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerStorageMoverContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(EndpointBaseUpdateProperties)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EndpointBaseUpdateProperties IPersistableModel<EndpointBaseUpdateProperties>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<EndpointBaseUpdateProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -38,6 +38,29 @@ namespace Azure.ResourceManager.OracleDatabase.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ScheduledOperationsType>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerOracleDatabaseContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ScheduledOperationsType)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ScheduledOperationsType>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ScheduledOperationsType IPersistableModel<ScheduledOperationsType>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ScheduledOperationsType>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ScheduledOperationsType>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -57,7 +80,7 @@ namespace Azure.ResourceManager.OracleDatabase.Models
                 throw new FormatException($"The model {nameof(ScheduledOperationsType)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("dayOfWeek"u8);
-            writer.WriteObjectValue(DayOfWeek, options);
+            writer.WriteObjectValue(ScheduledDay, options);
             if (Optional.IsDefined(AutoStartOn))
             {
                 writer.WritePropertyName("scheduledStartTime"u8);
@@ -110,7 +133,7 @@ namespace Azure.ResourceManager.OracleDatabase.Models
             {
                 return null;
             }
-            OracleDatabaseDayOfWeek dayOfWeek = default;
+            OracleDatabaseDayOfWeek scheduledDay = default;
             DateTimeOffset? autoStartOn = default;
             DateTimeOffset? autoStopOn = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
@@ -118,7 +141,7 @@ namespace Azure.ResourceManager.OracleDatabase.Models
             {
                 if (prop.NameEquals("dayOfWeek"u8))
                 {
-                    dayOfWeek = OracleDatabaseDayOfWeek.DeserializeOracleDatabaseDayOfWeek(prop.Value, options);
+                    scheduledDay = OracleDatabaseDayOfWeek.DeserializeOracleDatabaseDayOfWeek(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("scheduledStartTime"u8))
@@ -144,30 +167,7 @@ namespace Azure.ResourceManager.OracleDatabase.Models
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new ScheduledOperationsType(dayOfWeek, autoStartOn, autoStopOn, additionalBinaryDataProperties);
+            return new ScheduledOperationsType(scheduledDay, autoStartOn, autoStopOn, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ScheduledOperationsType>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ScheduledOperationsType>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerOracleDatabaseContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ScheduledOperationsType)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ScheduledOperationsType IPersistableModel<ScheduledOperationsType>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ScheduledOperationsType>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

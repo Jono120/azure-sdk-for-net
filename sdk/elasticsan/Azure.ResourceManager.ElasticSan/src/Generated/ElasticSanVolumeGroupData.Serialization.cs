@@ -37,6 +37,39 @@ namespace Azure.ResourceManager.ElasticSan
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ElasticSanVolumeGroupData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerElasticSanContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ElasticSanVolumeGroupData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ElasticSanVolumeGroupData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ElasticSanVolumeGroupData IPersistableModel<ElasticSanVolumeGroupData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ElasticSanVolumeGroupData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ElasticSanVolumeGroupData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="elasticSanVolumeGroupData"> The <see cref="ElasticSanVolumeGroupData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(ElasticSanVolumeGroupData elasticSanVolumeGroupData)
+        {
+            if (elasticSanVolumeGroupData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(elasticSanVolumeGroupData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="ElasticSanVolumeGroupData"/> from. </param>
         internal static ElasticSanVolumeGroupData FromResponse(Response response)
         {
@@ -66,12 +99,27 @@ namespace Azure.ResourceManager.ElasticSan
             if (Optional.IsDefined(Identity))
             {
                 writer.WritePropertyName("identity"u8);
-                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options);
+                ((IJsonModel<ManagedServiceIdentity>)Identity).Write(writer, options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options);
             }
             if (Optional.IsDefined(Properties))
             {
                 writer.WritePropertyName("properties"u8);
                 writer.WriteObjectValue(Properties, options);
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
             }
         }
 
@@ -104,9 +152,9 @@ namespace Azure.ResourceManager.ElasticSan
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             ManagedServiceIdentity identity = default;
             VolumeGroupProperties properties = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -147,7 +195,7 @@ namespace Azure.ResourceManager.ElasticSan
                     {
                         continue;
                     }
-                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), ModelSerializationExtensions.WireOptions, AzureResourceManagerElasticSanContext.Default);
+                    identity = ModelReaderWriter.Read<ManagedServiceIdentity>(new BinaryData(Encoding.UTF8.GetBytes(prop.Value.GetRawText())), options.Format == "W" ? ModelSerializationExtensions.WireV3Options : ModelSerializationExtensions.JsonV3Options, AzureResourceManagerElasticSanContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("properties"u8))
@@ -169,44 +217,9 @@ namespace Azure.ResourceManager.ElasticSan
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 identity,
-                properties);
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ElasticSanVolumeGroupData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<ElasticSanVolumeGroupData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerElasticSanContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(ElasticSanVolumeGroupData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        ElasticSanVolumeGroupData IPersistableModel<ElasticSanVolumeGroupData>.Create(BinaryData data, ModelReaderWriterOptions options) => (ElasticSanVolumeGroupData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ElasticSanVolumeGroupData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="elasticSanVolumeGroupData"> The <see cref="ElasticSanVolumeGroupData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(ElasticSanVolumeGroupData elasticSanVolumeGroupData)
-        {
-            if (elasticSanVolumeGroupData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(elasticSanVolumeGroupData, ModelSerializationExtensions.WireOptions);
-            return content;
+                properties,
+                additionalBinaryDataProperties);
         }
     }
 }

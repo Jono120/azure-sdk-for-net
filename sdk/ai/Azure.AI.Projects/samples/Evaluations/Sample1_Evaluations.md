@@ -4,22 +4,22 @@ In this example we will demonstrate how to evaluate the Agent based on several t
 
 1. First, we need to create project client and read the environment variables which will be used in the next steps. We will also create an `EvaluationClient` for creating and running evaluations.
 
-```C# Snippet:Sampple_CreateClients_Evaluations
-var endpoint = System.Environment.GetEnvironmentVariable("PROJECT_ENDPOINT");
-var modelDeploymentName = System.Environment.GetEnvironmentVariable("MODEL_DEPLOYMENT_NAME");
+```C# Snippet:Sample_CreateClients_Evaluations
+var endpoint = System.Environment.GetEnvironmentVariable("FOUNDRY_PROJECT_ENDPOINT");
+var modelDeploymentName = System.Environment.GetEnvironmentVariable("FOUNDRY_MODEL_NAME");
 AIProjectClient projectClient = new(new Uri(endpoint), new DefaultAzureCredential());
-EvaluationClient evaluationClient = projectClient.OpenAI.GetEvaluationClient();
+EvaluationClient evaluationClient = projectClient.ProjectOpenAIClient.GetEvaluationClient();
 ```
 
 2. Create a target Agent for evaluation.
 
 Synchronous sample:
 ```C# Snippet:Sample_CreateAgent_Evaluations_Sync
-PromptAgentDefinition agentDefinition = new(model: modelDeploymentName)
+DeclarativeAgentDefinition agentDefinition = new(model: modelDeploymentName)
 {
     Instructions = "You are a prompt agent."
 };
-AgentVersion agentVersion = projectClient.Agents.CreateAgentVersion(
+ProjectsAgentVersion agentVersion = projectClient.AgentAdministrationClient.CreateAgentVersion(
     agentName: "evalAgent",
     options: new(agentDefinition));
 Console.WriteLine($"Agent created (id: {agentVersion.Id}, name: {agentVersion.Name}, version: {agentVersion.Version})");
@@ -27,11 +27,11 @@ Console.WriteLine($"Agent created (id: {agentVersion.Id}, name: {agentVersion.Na
 
 Asynchronous sample:
 ```C# Snippet:Sample_CreateAgent_Evaluations_Async
-PromptAgentDefinition agentDefinition = new(model: modelDeploymentName)
+DeclarativeAgentDefinition agentDefinition = new(model: modelDeploymentName)
 {
     Instructions = "You are a prompt agent."
 };
-AgentVersion agentVersion = await projectClient.Agents.CreateAgentVersionAsync(
+ProjectsAgentVersion agentVersion = await projectClient.AgentAdministrationClient.CreateAgentVersionAsync(
     agentName: "evalAgent",
     options: new(agentDefinition));
 Console.WriteLine($"Agent created (id: {agentVersion.Id}, name: {agentVersion.Name}, version: {agentVersion.Version})");
@@ -91,12 +91,12 @@ BinaryData evaluationData = BinaryData.FromObjectAsJson(
 
 4. The `EvaluationClient` uses protocol methods i.e. they take in JSON in the form of `BinaryData` and return `ClientResult`, containing binary encoded JSON response, which can be retrieved using `GetRawResponse()` method. To simplify parsing JSON we will create helper methods. One of the methods is named `ParseClientResult`. It gets string values of the top-level JSON properties. In the next section we will use it to get evaluation name and ID.
 
-```C# Snippet:Sampple_GetStringValues_Evaluations
+```C# Snippet:Sample_GetStringValues_Evaluations
 private static Dictionary<string, string> ParseClientResult(ClientResult result, string[] expectedProperties)
 {
     Dictionary<string, string> results = [];
     Utf8JsonReader reader = new(result.GetRawResponse().Content.ToMemory().ToArray());
-    JsonDocument document = JsonDocument.ParseValue(ref reader);
+    using JsonDocument document = JsonDocument.ParseValue(ref reader);
     foreach (JsonProperty prop in document.RootElement.EnumerateObject())
     {
         foreach (string key in expectedProperties)
@@ -214,12 +214,12 @@ Console.WriteLine($"Evaluation run created (id: {runId})");
 
 8. Define the method to get the error message and code from the response if any.
 
-```C# Snippet:Sampple_GetError_Evaluations
+```C# Snippet:Sample_GetError_Evaluations
 private static string GetErrorMessageOrEmpty(ClientResult result)
 {
     string error = "";
     Utf8JsonReader reader = new(result.GetRawResponse().Content.ToMemory().ToArray());
-    JsonDocument document = JsonDocument.ParseValue(ref reader);
+    using JsonDocument document = JsonDocument.ParseValue(ref reader);
     string code = default;
     string message = default;
     foreach (JsonProperty prop in document.RootElement.EnumerateObject())
@@ -284,11 +284,11 @@ if (runStatus == "failed")
 
 10. Like the `ParseClientResult` we will define the method, getting the result counts `GetResultsCounts`, which formats the `result_counts` property of the output JSON.
 
-```C# Snippet:Sampple_GetResultCounts_Evaluations
+```C# Snippet:Sample_GetResultCounts_Evaluations
 private static string GetResultsCounts(ClientResult result)
 {
     Utf8JsonReader reader = new(result.GetRawResponse().Content.ToMemory().ToArray());
-    JsonDocument document = JsonDocument.ParseValue(ref reader);
+    using JsonDocument document = JsonDocument.ParseValue(ref reader);
     StringBuilder sbFormattedCounts = new("{\n");
     foreach (JsonProperty prop in document.RootElement.EnumerateObject())
     {
@@ -315,17 +315,17 @@ private static string GetResultsCounts(ClientResult result)
 11. To get the results JSON we will define two methods `GetResultsList` and `GetResultsListAsync`, which are iterating over the pages containing results.
 
 Synchronous sample:
-```C# Snippet:Sampple_GetResultsList_Evaluations_Sync
+```C# Snippet:Sample_GetResultsList_Evaluations_Sync
 private static List<string> GetResultsList(EvaluationClient client, string evaluationId, string evaluationRunId)
 {
     List<string> resultJsons = [];
     bool hasMore = false;
+    string after = default;
     do
     {
-        ClientResult resultList = client.GetEvaluationRunOutputItems(evaluationId: evaluationId, evaluationRunId: evaluationRunId, limit: null, order: "asc", after: default, outputItemStatus: default, options: new());
+        ClientResult resultList = client.GetEvaluationRunOutputItems(evaluationId: evaluationId, evaluationRunId: evaluationRunId, limit: null, order: "asc", after: after, outputItemStatus: default, options: new());
         Utf8JsonReader reader = new(resultList.GetRawResponse().Content.ToMemory().ToArray());
-        JsonDocument document = JsonDocument.ParseValue(ref reader);
-        List<string> data = [];
+        using JsonDocument document = JsonDocument.ParseValue(ref reader);
 
         foreach (JsonProperty topProperty in document.RootElement.EnumerateObject())
         {
@@ -342,6 +342,10 @@ private static List<string> GetResultsList(EvaluationClient client, string evalu
                         resultJsons.Add(dataElement.ToString());
                     }
                 }
+            }
+            else if (topProperty.NameEquals("last_id"u8))
+            {
+                after = topProperty.Value.GetString();
             }
         }
     } while (hasMore);
@@ -350,16 +354,17 @@ private static List<string> GetResultsList(EvaluationClient client, string evalu
 ```
 
 Asynchronous sample:
-```C# Snippet:Sampple_GetResultsList_Evaluations_Async
+```C# Snippet:Sample_GetResultsList_Evaluations_Async
 private static async Task<List<string>> GetResultsListAsync(EvaluationClient client, string evaluationId, string evaluationRunId)
 {
     List<string> resultJsons = [];
     bool hasMore = false;
+    string after = default;
     do
     {
-        ClientResult resultList = await client.GetEvaluationRunOutputItemsAsync(evaluationId: evaluationId, evaluationRunId: evaluationRunId, limit: null, order: "asc", after: default, outputItemStatus: default, options: new());
+        ClientResult resultList = await client.GetEvaluationRunOutputItemsAsync(evaluationId: evaluationId, evaluationRunId: evaluationRunId, limit: null, order: "asc", after: after, outputItemStatus: default, options: new());
         Utf8JsonReader reader = new(resultList.GetRawResponse().Content.ToMemory().ToArray());
-        JsonDocument document = JsonDocument.ParseValue(ref reader);
+        using JsonDocument document = JsonDocument.ParseValue(ref reader);
 
         foreach (JsonProperty topProperty in document.RootElement.EnumerateObject())
         {
@@ -376,6 +381,10 @@ private static async Task<List<string>> GetResultsListAsync(EvaluationClient cli
                         resultJsons.Add(dataElement.ToString());
                     }
                 }
+            }
+            else if (topProperty.NameEquals("last_id"u8))
+            {
+                after = topProperty.Value.GetString();
             }
         }
     } while (hasMore);
@@ -418,11 +427,11 @@ Console.WriteLine($"------------------------------------------------------------
 Synchronous sample:
 ```C# Snippet:Sample_Cleanup_Evaluations_Sync
 evaluationClient.DeleteEvaluation(evaluationId, new System.ClientModel.Primitives.RequestOptions());
-projectClient.Agents.DeleteAgentVersion(agentName: agentVersion.Name, agentVersion: agentVersion.Version);
+projectClient.AgentAdministrationClient.DeleteAgentVersion(agentName: agentVersion.Name, agentVersion: agentVersion.Version);
 ```
 
 Asynchronous sample:
 ```C# Snippet:Sample_Cleanup_Evaluations_Async
 await evaluationClient.DeleteEvaluationAsync(evaluationId, new System.ClientModel.Primitives.RequestOptions());
-await projectClient.Agents.DeleteAgentVersionAsync(agentName: agentVersion.Name, agentVersion: agentVersion.Version);
+await projectClient.AgentAdministrationClient.DeleteAgentVersionAsync(agentName: agentVersion.Name, agentVersion: agentVersion.Version);
 ```

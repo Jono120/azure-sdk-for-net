@@ -33,6 +33,29 @@ namespace Azure.ResourceManager.Hci.Vm.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<HciVmOSProfileWindowsConfiguration>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHciVmContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(HciVmOSProfileWindowsConfiguration)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<HciVmOSProfileWindowsConfiguration>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        HciVmOSProfileWindowsConfiguration IPersistableModel<HciVmOSProfileWindowsConfiguration>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<HciVmOSProfileWindowsConfiguration>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<HciVmOSProfileWindowsConfiguration>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -51,15 +74,15 @@ namespace Azure.ResourceManager.Hci.Vm.Models
             {
                 throw new FormatException($"The model {nameof(HciVmOSProfileWindowsConfiguration)} does not support writing '{format}' format.");
             }
-            if (Optional.IsDefined(ProvisionVmAgent))
+            if (Optional.IsDefined(ShouldProvisionVmAgent))
             {
                 writer.WritePropertyName("provisionVMAgent"u8);
-                writer.WriteBooleanValue(ProvisionVmAgent.Value);
+                writer.WriteBooleanValue(ShouldProvisionVmAgent.Value);
             }
-            if (Optional.IsDefined(ProvisionVmConfigAgent))
+            if (Optional.IsDefined(ShouldProvisionVmConfigAgent))
             {
                 writer.WritePropertyName("provisionVMConfigAgent"u8);
-                writer.WriteBooleanValue(ProvisionVmConfigAgent.Value);
+                writer.WriteBooleanValue(ShouldProvisionVmConfigAgent.Value);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
@@ -103,8 +126,8 @@ namespace Azure.ResourceManager.Hci.Vm.Models
             {
                 return null;
             }
-            bool? provisionVmAgent = default;
-            bool? provisionVmConfigAgent = default;
+            bool? shouldProvisionVmAgent = default;
+            bool? shouldProvisionVmConfigAgent = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -114,7 +137,7 @@ namespace Azure.ResourceManager.Hci.Vm.Models
                     {
                         continue;
                     }
-                    provisionVmAgent = prop.Value.GetBoolean();
+                    shouldProvisionVmAgent = prop.Value.GetBoolean();
                     continue;
                 }
                 if (prop.NameEquals("provisionVMConfigAgent"u8))
@@ -123,7 +146,7 @@ namespace Azure.ResourceManager.Hci.Vm.Models
                     {
                         continue;
                     }
-                    provisionVmConfigAgent = prop.Value.GetBoolean();
+                    shouldProvisionVmConfigAgent = prop.Value.GetBoolean();
                     continue;
                 }
                 if (options.Format != "W")
@@ -131,30 +154,7 @@ namespace Azure.ResourceManager.Hci.Vm.Models
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new HciVmOSProfileWindowsConfiguration(provisionVmAgent, provisionVmConfigAgent, additionalBinaryDataProperties);
+            return new HciVmOSProfileWindowsConfiguration(shouldProvisionVmAgent, shouldProvisionVmConfigAgent, additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<HciVmOSProfileWindowsConfiguration>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<HciVmOSProfileWindowsConfiguration>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerHciVmContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(HciVmOSProfileWindowsConfiguration)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        HciVmOSProfileWindowsConfiguration IPersistableModel<HciVmOSProfileWindowsConfiguration>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<HciVmOSProfileWindowsConfiguration>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

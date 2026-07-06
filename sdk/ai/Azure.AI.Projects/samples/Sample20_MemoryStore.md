@@ -1,13 +1,19 @@
 # Sample of using `MemoryStore` in Azure.AI.Projects.
 
+**Note:** Memory stores is an experimental feature, to use it, please disable the `AAIP001` warning.
+
+```C#
+#pragma warning disable AAIP001
+```
+
 In this example we will demonstrate how to create, update, list and delete memory stores and scopes inside them. Before running the sample, please follow the [instructions](https://learn.microsoft.com/azure/ai-foundry/agents/how-to/memory-usage) to set up required permissions.
 
 1. First, we need to create project client and read the environment variables, which will be used in the next steps.
 
 ```C# Snippet:Sample_MemoryStore
-var projectEndpoint = System.Environment.GetEnvironmentVariable("PROJECT_ENDPOINT");
-var modelDeploymentName = System.Environment.GetEnvironmentVariable("MODEL_DEPLOYMENT_NAME");
-var embeddingDeploymentName = System.Environment.GetEnvironmentVariable("EMBEDDING_MODEL_DEPLOYMENT_NAME");
+var projectEndpoint = System.Environment.GetEnvironmentVariable("FOUNDRY_PROJECT_ENDPOINT");
+var modelDeploymentName = System.Environment.GetEnvironmentVariable("MEMORY_STORE_CHAT_MODEL_DEPLOYMENT_NAME");
+var embeddingDeploymentName = System.Environment.GetEnvironmentVariable("MEMORY_STORE_EMBEDDING_MODEL_DEPLOYMENT_NAME");
 AIProjectClient projectClient = new(new Uri(projectEndpoint), new DefaultAzureCredential());
 ```
 
@@ -19,7 +25,7 @@ MemoryStoreDefaultDefinition memoryStoreDefinition = new(
     chatModel: modelDeploymentName,
     embeddingModel: embeddingDeploymentName
 );
-memoryStoreDefinition.Options = new(userProfileEnabled: true, chatSummaryEnabled: true);
+memoryStoreDefinition.Options = new(isUserProfileEnabled: true, isChatSummaryEnabled: true);
 MemoryStore memoryStore = projectClient.MemoryStores.CreateMemoryStore(
     name: "testMemoryStore",
     definition: memoryStoreDefinition,
@@ -34,7 +40,7 @@ MemoryStoreDefaultDefinition memoryStoreDefinition = new(
     chatModel: modelDeploymentName,
     embeddingModel: embeddingDeploymentName
 );
-memoryStoreDefinition.Options = new(userProfileEnabled: true, chatSummaryEnabled: true);
+memoryStoreDefinition.Options = new(isUserProfileEnabled: true, isChatSummaryEnabled: true);
 MemoryStore memoryStore = await projectClient.MemoryStores.CreateMemoryStoreAsync(
     name: "testMemoryStore",
     definition: memoryStoreDefinition,
@@ -127,10 +133,10 @@ MemorySearchOptions opts = new(scope)
 };
 MemoryStoreSearchResponse resp = projectClient.MemoryStores.SearchMemories(
     memoryStoreName: memoryStore.Name,
-    options: new(scope)
+    options: opts
 );
 Console.WriteLine("==The output from memory tool.==");
-foreach (Azure.AI.Projects.MemorySearchItem item in resp.Memories)
+foreach (MemorySearchItem item in resp.Memories)
 {
     Console.WriteLine(item.MemoryItem.Content);
 }
@@ -145,10 +151,10 @@ MemorySearchOptions opts = new(scope)
 };
 MemoryStoreSearchResponse resp = await projectClient.MemoryStores.SearchMemoriesAsync(
     memoryStoreName: memoryStore.Name,
-    options: new(scope)
+    options: opts
 );
 Console.WriteLine("==The output from memory tool.==");
-foreach (Azure.AI.Projects.MemorySearchItem item in resp.Memories)
+foreach (MemorySearchItem item in resp.Memories)
 {
     Console.WriteLine(item.MemoryItem.Content);
 }
@@ -160,14 +166,14 @@ Console.WriteLine("==End of memory tool output.==");
 Synchronous sample:
 ```C# Snippet:Sample_DeleteScope_MemoryStore_Sync
 MemoryStoreDeleteScopeResponse deleteScopeResponse = projectClient.MemoryStores.DeleteScope(name: memoryStore.Name, scope: "Flower");
-string status = deleteScopeResponse.Deleted ? "" : " not";
+string status = deleteScopeResponse.IsDeleted ? "" : " not";
 Console.WriteLine($"The scope {deleteScopeResponse.Name} was{status} deleted.");
 ```
 
 Asynchronous sample:
 ```C# Snippet:Sample_DeleteScope_MemoryStore_Async
 MemoryStoreDeleteScopeResponse deleteScopeResponse = await projectClient.MemoryStores.DeleteScopeAsync(name: memoryStore.Name, scope: "Flower");
-string status = deleteScopeResponse.Deleted ? "" : " not";
+string status = deleteScopeResponse.IsDeleted ? "" : " not";
 Console.WriteLine($"The scope {deleteScopeResponse.Name} was{status} deleted.");
 ```
 
@@ -176,13 +182,13 @@ Console.WriteLine($"The scope {deleteScopeResponse.Name} was{status} deleted.");
 Synchronous sample:
 ```C# Snippet:Sample_Cleanup_MemoryStore_Sync
 DeleteMemoryStoreResponse deleteResponse = projectClient.MemoryStores.DeleteMemoryStore(name: memoryStore.Name);
-status = deleteResponse.Deleted ? "" : " not";
+status = deleteResponse.IsDeleted ? "" : " not";
 Console.WriteLine($"The memory store {deleteResponse.Name} was{status} deleted.");
 ```
 
 Asynchronous sample:
 ```C# Snippet:Sample_Cleanup_MemoryStore_Async
 DeleteMemoryStoreResponse deleteResponse = await projectClient.MemoryStores.DeleteMemoryStoreAsync(name: memoryStore.Name);
-status = deleteResponse.Deleted ? "" : " not";
+status = deleteResponse.IsDeleted ? "" : " not";
 Console.WriteLine($"The memory store {deleteResponse.Name} was{status} deleted.");
 ```

@@ -52,7 +52,7 @@ namespace BasicTypeSpec
                     {
                         using (XmlWriter writer = XmlWriter.Create(stream, ModelSerializationExtensions.XmlWriterSettings))
                         {
-                            Write(writer, options, "AdvancedXmlModel");
+                            WriteXml(writer, options, "AdvancedXmlModel");
                         }
                         if (stream.Position > int.MaxValue)
                         {
@@ -105,7 +105,7 @@ namespace BasicTypeSpec
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        private void Write(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
+        private void WriteXml(XmlWriter writer, ModelReaderWriterOptions options, string nameHint)
         {
             if (nameHint != null)
             {
@@ -122,7 +122,7 @@ namespace BasicTypeSpec
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
+        internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<XmlAdvancedModel>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "X")
@@ -164,7 +164,7 @@ namespace BasicTypeSpec
             if (Optional.IsDefined(OptionalInt))
             {
                 writer.WriteStartElement("optionalInt");
-                writer.WriteValue(OptionalInt);
+                writer.WriteValue(OptionalInt.Value);
                 writer.WriteEndElement();
             }
             if (Optional.IsDefined(NullableString))
@@ -384,9 +384,9 @@ namespace BasicTypeSpec
             string originalName = default;
             string xmlIdentifier = default;
             string content = default;
-            IList<string> unwrappedStrings = default;
-            IList<int> unwrappedCounts = default;
-            IList<XmlItem> unwrappedItems = default;
+            IList<string> unwrappedStrings = new List<string>();
+            IList<int> unwrappedCounts = new List<int>();
+            IList<XmlItem> unwrappedItems = new List<XmlItem>();
             IList<string> wrappedColors = default;
             IList<XmlItem> items = default;
             XmlNestedModel nestedModel = default;
@@ -405,13 +405,12 @@ namespace BasicTypeSpec
             IList<string> fooItems = default;
             XmlNestedModel anotherModel = default;
             IList<XmlModelWithNamespace> modelsWithNamespaces = default;
-            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = default;
+            IList<XmlModelWithNamespace> unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
             IList<IList<XmlItem>> listOfListFoo = default;
             IDictionary<string, XmlItem> dictionaryFoo = default;
             IDictionary<string, IDictionary<string, XmlItem>> dictionaryOfDictionaryFoo = default;
             IDictionary<string, IList<XmlItem>> dictionaryListFoo = default;
             IList<IDictionary<string, XmlItem>> listOfDictionaryFoo = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
 
             foreach (var attr in element.Attributes())
             {
@@ -492,28 +491,16 @@ namespace BasicTypeSpec
                 }
                 if (localName == "unwrappedStrings")
                 {
-                    if (unwrappedStrings == null)
-                    {
-                        unwrappedStrings = new List<string>();
-                    }
                     unwrappedStrings.Add((string)child);
                     continue;
                 }
                 if (localName == "unwrappedCounts")
                 {
-                    if (unwrappedCounts == null)
-                    {
-                        unwrappedCounts = new List<int>();
-                    }
                     unwrappedCounts.Add((int)child);
                     continue;
                 }
                 if (localName == "unwrappedItems")
                 {
-                    if (unwrappedItems == null)
-                    {
-                        unwrappedItems = new List<XmlItem>();
-                    }
                     unwrappedItems.Add(XmlItem.DeserializeXmlItem(child, options));
                     continue;
                 }
@@ -634,10 +621,6 @@ namespace BasicTypeSpec
                 }
                 if (localName == "unwrappedModelsWithNamespaces")
                 {
-                    if (unwrappedModelsWithNamespaces == null)
-                    {
-                        unwrappedModelsWithNamespaces = new List<XmlModelWithNamespace>();
-                    }
                     unwrappedModelsWithNamespaces.Add(XmlModelWithNamespace.DeserializeXmlModelWithNamespace(child, options));
                     continue;
                 }
@@ -754,12 +737,11 @@ namespace BasicTypeSpec
                 dictionaryFoo,
                 dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
-                listOfDictionaryFoo,
-                additionalBinaryDataProperties);
+                listOfDictionaryFoo);
         }
 
         /// <param name="writer"> The XML writer. </param>
         /// <param name="nameHint"> An optional name hint. </param>
-        void IXmlSerializable.Write(XmlWriter writer, string nameHint) => Write(writer, ModelSerializationExtensions.WireOptions, nameHint);
+        void IXmlSerializable.Write(XmlWriter writer, string nameHint) => WriteXml(writer, ModelSerializationExtensions.WireOptions, nameHint);
     }
 }

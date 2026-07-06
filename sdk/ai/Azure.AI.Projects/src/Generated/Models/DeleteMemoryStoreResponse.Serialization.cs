@@ -7,8 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using Azure.AI.Projects;
 
-namespace Azure.AI.Projects
+namespace Azure.AI.Projects.Memory
 {
     /// <summary> The DeleteMemoryStoreResponse. </summary>
     public partial class DeleteMemoryStoreResponse : IJsonModel<DeleteMemoryStoreResponse>
@@ -85,11 +86,11 @@ namespace Azure.AI.Projects
                 throw new FormatException($"The model {nameof(DeleteMemoryStoreResponse)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("object"u8);
-            writer.WriteStringValue(Object);
+            writer.WriteStringValue(Object.ToString());
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
             writer.WritePropertyName("deleted"u8);
-            writer.WriteBooleanValue(Deleted);
+            writer.WriteBooleanValue(IsDeleted);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -132,15 +133,15 @@ namespace Azure.AI.Projects
             {
                 return null;
             }
-            string @object = default;
+            MemoryStoreObjectType @object = default;
             string name = default;
-            bool deleted = default;
+            bool isDeleted = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("object"u8))
                 {
-                    @object = prop.Value.GetString();
+                    @object = new MemoryStoreObjectType(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("name"u8))
@@ -150,7 +151,7 @@ namespace Azure.AI.Projects
                 }
                 if (prop.NameEquals("deleted"u8))
                 {
-                    deleted = prop.Value.GetBoolean();
+                    isDeleted = prop.Value.GetBoolean();
                     continue;
                 }
                 if (options.Format != "W")
@@ -158,7 +159,7 @@ namespace Azure.AI.Projects
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new DeleteMemoryStoreResponse(@object, name, deleted, additionalBinaryDataProperties);
+            return new DeleteMemoryStoreResponse(@object, name, isDeleted, additionalBinaryDataProperties);
         }
     }
 }

@@ -37,6 +37,32 @@ namespace Azure.ResourceManager.CarbonOptimization.Models
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<CarbonEmission>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerCarbonOptimizationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(CarbonEmission)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<CarbonEmission>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        CarbonEmission IPersistableModel<CarbonEmission>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            return PersistableModelCreateCore(data, options);
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<CarbonEmission>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<CarbonEmission>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
@@ -60,7 +86,10 @@ namespace Azure.ResourceManager.CarbonOptimization.Models
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        CarbonEmission IJsonModel<CarbonEmission>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        CarbonEmission IJsonModel<CarbonEmission>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            return JsonModelCreateCore(ref reader, options);
+        }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -137,28 +166,5 @@ namespace Azure.ResourceManager.CarbonOptimization.Models
                 monthlyEmissionsChangeValue,
                 additionalBinaryDataProperties);
         }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<CarbonEmission>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<CarbonEmission>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerCarbonOptimizationContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(CarbonEmission)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        CarbonEmission IPersistableModel<CarbonEmission>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<CarbonEmission>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

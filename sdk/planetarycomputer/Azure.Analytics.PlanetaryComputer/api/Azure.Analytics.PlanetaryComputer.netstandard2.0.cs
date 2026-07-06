@@ -1,5 +1,23 @@
 namespace Azure.Analytics.PlanetaryComputer
 {
+    public partial class AssetMetadata : System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>, System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>
+    {
+        public AssetMetadata(string key, string type, System.Collections.Generic.IEnumerable<string> roles, string title, string description) { }
+        public string Description { get { throw null; } }
+        public string Key { get { throw null; } }
+        public System.Collections.Generic.IList<string> Roles { get { throw null; } }
+        public string Title { get { throw null; } }
+        public string Type { get { throw null; } }
+        protected virtual Azure.Analytics.PlanetaryComputer.AssetMetadata JsonModelCreateCore(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+        protected virtual void JsonModelWriteCore(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options) { }
+        protected virtual Azure.Analytics.PlanetaryComputer.AssetMetadata PersistableModelCreateCore(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+        protected virtual System.BinaryData PersistableModelWriteCore(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+        Azure.Analytics.PlanetaryComputer.AssetMetadata System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+        void System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options) { }
+        Azure.Analytics.PlanetaryComputer.AssetMetadata System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+        string System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.AssetMetadata>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
+    }
     public partial class AssetStatisticsResponse : System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.AssetStatisticsResponse>, System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.AssetStatisticsResponse>
     {
         internal AssetStatisticsResponse() { }
@@ -421,9 +439,9 @@ namespace Azure.Analytics.PlanetaryComputer
         public virtual System.Threading.Tasks.Task<Azure.Response<System.BinaryData>> GetWmtsCapabilitiesAsync(string collectionId, string itemId, string tileMatrixSetId, System.Collections.Generic.IEnumerable<string> assets = null, string expression = null, string assetBandIndices = null, bool? assetAsBand = default(bool?), float? noData = default(float?), bool? unscale = default(bool?), Azure.Analytics.PlanetaryComputer.TerrainAlgorithm? algorithm = default(Azure.Analytics.PlanetaryComputer.TerrainAlgorithm?), string algorithmParams = null, Azure.Analytics.PlanetaryComputer.TilerImageFormat? tileFormat = default(Azure.Analytics.PlanetaryComputer.TilerImageFormat?), int? tileScale = default(int?), int? minZoom = default(int?), int? maxZoom = default(int?), string buffer = null, string colorFormula = null, Azure.Analytics.PlanetaryComputer.ResamplingMethod? resampling = default(Azure.Analytics.PlanetaryComputer.ResamplingMethod?), System.Collections.Generic.IEnumerable<string> rescale = null, Azure.Analytics.PlanetaryComputer.ColorMapNames? colorMapName = default(Azure.Analytics.PlanetaryComputer.ColorMapNames?), string colorMap = null, bool? returnMask = default(bool?), System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response> GetWmtsCapabilitiesAsync(string collectionId, string itemId, string tileMatrixSetId, System.Collections.Generic.IEnumerable<string> assets, string expression, string assetBandIndices, bool? assetAsBand, float? noData, bool? unscale, string algorithm, string algorithmParams, string tileFormat, int? tileScale, int? minZoom, int? maxZoom, string buffer, string colorFormula, string resampling, System.Collections.Generic.IEnumerable<string> rescale, string colorMapName, string colorMap, bool? returnMask, Azure.RequestContext context) { throw null; }
         public virtual Azure.Response RegisterMosaicsSearch(Azure.Core.RequestContent content, Azure.RequestContext context = null) { throw null; }
-        public virtual Azure.Response<Azure.Analytics.PlanetaryComputer.TilerMosaicSearchRegistrationResult> RegisterMosaicsSearch(System.Collections.Generic.IEnumerable<string> collections = null, System.Collections.Generic.IEnumerable<string> ids = null, float? boundingBox = default(float?), Azure.Analytics.PlanetaryComputer.GeoJsonGeometry intersects = null, System.Collections.Generic.IDictionary<string, System.BinaryData> query = null, System.Collections.Generic.IDictionary<string, System.BinaryData> filter = null, string datetime = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacSortExtension> sortBy = null, Azure.Analytics.PlanetaryComputer.FilterLanguage? filterLanguage = default(Azure.Analytics.PlanetaryComputer.FilterLanguage?), Azure.Analytics.PlanetaryComputer.MosaicMetadata metadata = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
+        public virtual Azure.Response<Azure.Analytics.PlanetaryComputer.TilerMosaicSearchRegistrationResult> RegisterMosaicsSearch(System.Collections.Generic.IEnumerable<string> collections = null, System.Collections.Generic.IEnumerable<string> ids = null, System.Collections.Generic.IEnumerable<float> boundingBox = null, Azure.Analytics.PlanetaryComputer.GeoJsonGeometry intersects = null, System.Collections.Generic.IDictionary<string, System.BinaryData> query = null, System.Collections.Generic.IDictionary<string, System.BinaryData> filter = null, string datetime = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacSortExtension> sortBy = null, Azure.Analytics.PlanetaryComputer.FilterLanguage? filterLanguage = default(Azure.Analytics.PlanetaryComputer.FilterLanguage?), Azure.Analytics.PlanetaryComputer.MosaicMetadata metadata = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response> RegisterMosaicsSearchAsync(Azure.Core.RequestContent content, Azure.RequestContext context = null) { throw null; }
-        public virtual System.Threading.Tasks.Task<Azure.Response<Azure.Analytics.PlanetaryComputer.TilerMosaicSearchRegistrationResult>> RegisterMosaicsSearchAsync(System.Collections.Generic.IEnumerable<string> collections = null, System.Collections.Generic.IEnumerable<string> ids = null, float? boundingBox = default(float?), Azure.Analytics.PlanetaryComputer.GeoJsonGeometry intersects = null, System.Collections.Generic.IDictionary<string, System.BinaryData> query = null, System.Collections.Generic.IDictionary<string, System.BinaryData> filter = null, string datetime = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacSortExtension> sortBy = null, Azure.Analytics.PlanetaryComputer.FilterLanguage? filterLanguage = default(Azure.Analytics.PlanetaryComputer.FilterLanguage?), Azure.Analytics.PlanetaryComputer.MosaicMetadata metadata = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
+        public virtual System.Threading.Tasks.Task<Azure.Response<Azure.Analytics.PlanetaryComputer.TilerMosaicSearchRegistrationResult>> RegisterMosaicsSearchAsync(System.Collections.Generic.IEnumerable<string> collections = null, System.Collections.Generic.IEnumerable<string> ids = null, System.Collections.Generic.IEnumerable<float> boundingBox = null, Azure.Analytics.PlanetaryComputer.GeoJsonGeometry intersects = null, System.Collections.Generic.IDictionary<string, System.BinaryData> query = null, System.Collections.Generic.IDictionary<string, System.BinaryData> filter = null, string datetime = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacSortExtension> sortBy = null, Azure.Analytics.PlanetaryComputer.FilterLanguage? filterLanguage = default(Azure.Analytics.PlanetaryComputer.FilterLanguage?), Azure.Analytics.PlanetaryComputer.MosaicMetadata metadata = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
     }
     public partial class DefaultLocation : System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.DefaultLocation>, System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.DefaultLocation>
     {
@@ -1095,6 +1113,7 @@ namespace Azure.Analytics.PlanetaryComputer
     }
     public static partial class PlanetaryComputerModelFactory
     {
+        public static Azure.Analytics.PlanetaryComputer.AssetMetadata AssetMetadata(string key = null, string type = null, System.Collections.Generic.IEnumerable<string> roles = null, string title = null, string description = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.AssetStatisticsResponse AssetStatisticsResponse(System.Collections.Generic.IReadOnlyDictionary<string, System.BinaryData> additionalProperties = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.BandStatistics BandStatistics(float minimum = 0f, float maximum = 0f, float mean = 0f, float count = 0f, float sum = 0f, float std = 0f, float median = 0f, float majority = 0f, float minority = 0f, float unique = 0f, System.Collections.Generic.IEnumerable<System.Collections.Generic.IList<float>> histogram = null, float validPercent = 0f, float maskedPixels = 0f, float validPixels = 0f, float percentile2 = 0f, float percentile98 = 0f) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.ClassMapLegendResponse ClassMapLegendResponse(System.Collections.Generic.IReadOnlyDictionary<string, System.BinaryData> additionalProperties = null) { throw null; }
@@ -1133,6 +1152,7 @@ namespace Azure.Analytics.PlanetaryComputer
         public static Azure.Analytics.PlanetaryComputer.SharedAccessSignatureTokenConnection SharedAccessSignatureTokenConnection(System.Uri containerUri = null, string sharedAccessSignatureToken = null, System.DateTimeOffset? expiration = default(System.DateTimeOffset?)) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.SharedAccessSignatureTokenIngestionSource SharedAccessSignatureTokenIngestionSource(System.Guid id = default(System.Guid), System.DateTimeOffset? created = default(System.DateTimeOffset?), Azure.Analytics.PlanetaryComputer.SharedAccessSignatureTokenConnection connectionInfo = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.StacAsset StacAsset(string platform = null, System.Collections.Generic.IEnumerable<string> instruments = null, string constellation = null, string mission = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacProvider> providers = null, float? gsd = default(float?), System.DateTimeOffset? created = default(System.DateTimeOffset?), System.DateTimeOffset? updated = default(System.DateTimeOffset?), string title = null, string description = null, string href = null, string type = null, System.Collections.Generic.IEnumerable<string> roles = null, System.Collections.Generic.IDictionary<string, System.BinaryData> additionalProperties = null) { throw null; }
+        public static Azure.Analytics.PlanetaryComputer.StacAssetData StacAssetData(Azure.Analytics.PlanetaryComputer.AssetMetadata data = null, System.ClientModel.FileBinaryContent file = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.StacCatalogCollections StacCatalogCollections(System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacLink> links = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacCollectionResource> collections = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.StacCollectionResource StacCollectionResource(System.DateTimeOffset? createdOn = default(System.DateTimeOffset?), System.DateTimeOffset? updatedOn = default(System.DateTimeOffset?), string shortDescription = null, System.Collections.Generic.IEnumerable<string> stacExtensions = null, string id = null, string description = null, string stacVersion = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacLink> links = null, string title = null, string type = null, System.Collections.Generic.IDictionary<string, Azure.Analytics.PlanetaryComputer.StacAsset> assets = null, System.Collections.Generic.IDictionary<string, Azure.Analytics.PlanetaryComputer.StacItemAsset> itemAssets = null, string license = null, Azure.Analytics.PlanetaryComputer.StacExtensionExtent extent = null, System.Collections.Generic.IEnumerable<string> keywords = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacProvider> providers = null, System.Collections.Generic.IDictionary<string, System.BinaryData> summaries = null, System.Collections.Generic.IDictionary<string, System.BinaryData> additionalProperties = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.StacCollectionTemporalExtent StacCollectionTemporalExtent(System.Collections.Generic.IEnumerable<System.Collections.Generic.IList<string>> interval = null) { throw null; }
@@ -1164,7 +1184,7 @@ namespace Azure.Analytics.PlanetaryComputer
         public static Azure.Analytics.PlanetaryComputer.TilerAssetGeoJson TilerAssetGeoJson(string id = null, string collection = null, System.Collections.Generic.IEnumerable<float> boundingBox = null, System.Collections.Generic.IDictionary<string, Azure.Analytics.PlanetaryComputer.StacAsset> assets = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.TilerCoreModelsResponsesPoint TilerCoreModelsResponsesPoint(System.Collections.Generic.IEnumerable<float> coordinates = null, System.Collections.Generic.IEnumerable<float> values = null, System.Collections.Generic.IEnumerable<string> bandNames = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.TilerInfo TilerInfo(System.Collections.Generic.IEnumerable<float> bounds = null, System.Collections.Generic.IEnumerable<System.Collections.Generic.IList<System.BinaryData>> bandMetadata = null, System.Collections.Generic.IEnumerable<System.Collections.Generic.IList<string>> bandDescriptions = null, string dtype = null, Azure.Analytics.PlanetaryComputer.NoDataType? noDataType = default(Azure.Analytics.PlanetaryComputer.NoDataType?), System.Collections.Generic.IEnumerable<string> colorInterpretation = null, string driver = null, int? count = default(int?), int? width = default(int?), int? height = default(int?), System.Collections.Generic.IEnumerable<int> overviews = null, System.Collections.Generic.IEnumerable<int> scales = null, System.Collections.Generic.IEnumerable<int> offsets = null, System.Collections.Generic.IDictionary<string, System.Collections.Generic.IList<string>> colormap = null, int? minZoom = default(int?), int? maxZoom = default(int?), string coordinateReferenceSystem = null) { throw null; }
-        public static Azure.Analytics.PlanetaryComputer.TilerInfoGeoJsonFeature TilerInfoGeoJsonFeature(Azure.Analytics.PlanetaryComputer.FeatureType type = default(Azure.Analytics.PlanetaryComputer.FeatureType), Azure.Analytics.PlanetaryComputer.GeoJsonGeometry geometry = null, System.Collections.Generic.IDictionary<string, Azure.Analytics.PlanetaryComputer.TilerInfo> properties = null, string id = null, float? boundingBox = default(float?)) { throw null; }
+        public static Azure.Analytics.PlanetaryComputer.TilerInfoGeoJsonFeature TilerInfoGeoJsonFeature(Azure.Analytics.PlanetaryComputer.FeatureType type = default(Azure.Analytics.PlanetaryComputer.FeatureType), Azure.Analytics.PlanetaryComputer.GeoJsonGeometry geometry = null, System.Collections.Generic.IDictionary<string, Azure.Analytics.PlanetaryComputer.TilerInfo> properties = null, string id = null, System.Collections.Generic.IEnumerable<float> boundingBox = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.TilerInfoMapResponse TilerInfoMapResponse(System.Collections.Generic.IReadOnlyDictionary<string, System.BinaryData> additionalProperties = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.TilerMosaicSearchRegistrationResult TilerMosaicSearchRegistrationResult(string searchId = null, System.Collections.Generic.IEnumerable<Azure.Analytics.PlanetaryComputer.StacLink> links = null) { throw null; }
         public static Azure.Analytics.PlanetaryComputer.TilerStacItemStatistics TilerStacItemStatistics(System.Collections.Generic.IReadOnlyDictionary<string, System.BinaryData> additionalProperties = null) { throw null; }
@@ -1177,6 +1197,7 @@ namespace Azure.Analytics.PlanetaryComputer
     public partial class PlanetaryComputerProClient
     {
         protected PlanetaryComputerProClient() { }
+        public PlanetaryComputerProClient(Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientSettings settings) { }
         public PlanetaryComputerProClient(System.Uri endpoint, Azure.Core.TokenCredential credential) { }
         public PlanetaryComputerProClient(System.Uri endpoint, Azure.Core.TokenCredential credential, Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientOptions options) { }
         public virtual Azure.Core.Pipeline.HttpPipeline Pipeline { get { throw null; } }
@@ -1185,6 +1206,13 @@ namespace Azure.Analytics.PlanetaryComputer
         public virtual Azure.Analytics.PlanetaryComputer.ManagedStorageSharedAccessSignatureClient GetManagedStorageSharedAccessSignatureClient() { throw null; }
         public virtual Azure.Analytics.PlanetaryComputer.StacClient GetStacClient() { throw null; }
     }
+    public static partial class PlanetaryComputerProClientHostExtensions
+    {
+        public static System.ClientModel.Primitives.IClientBuilder AddKeyedPlanetaryComputerProClient(this Microsoft.Extensions.Hosting.IHostApplicationBuilder host, string key, string sectionName) { throw null; }
+        public static System.ClientModel.Primitives.IClientBuilder AddKeyedPlanetaryComputerProClient(this Microsoft.Extensions.Hosting.IHostApplicationBuilder host, string key, string sectionName, System.Action<Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientSettings> configureSettings) { throw null; }
+        public static System.ClientModel.Primitives.IClientBuilder AddPlanetaryComputerProClient(this Microsoft.Extensions.Hosting.IHostApplicationBuilder host, string sectionName) { throw null; }
+        public static System.ClientModel.Primitives.IClientBuilder AddPlanetaryComputerProClient(this Microsoft.Extensions.Hosting.IHostApplicationBuilder host, string sectionName, System.Action<Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientSettings> configureSettings) { throw null; }
+    }
     public partial class PlanetaryComputerProClientOptions : Azure.Core.ClientOptions
     {
         public PlanetaryComputerProClientOptions(Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientOptions.ServiceVersion version = Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientOptions.ServiceVersion.V2025_04_30_Preview) { }
@@ -1192,6 +1220,13 @@ namespace Azure.Analytics.PlanetaryComputer
         {
             V2025_04_30_Preview = 1,
         }
+    }
+    public partial class PlanetaryComputerProClientSettings : System.ClientModel.Primitives.ClientSettings
+    {
+        public PlanetaryComputerProClientSettings() { }
+        public System.Uri Endpoint { get { throw null; } set { } }
+        public Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientOptions Options { get { throw null; } set { } }
+        protected override void BindCore(Microsoft.Extensions.Configuration.IConfigurationSection section) { }
     }
     public partial class PointGeometry : Azure.Analytics.PlanetaryComputer.GeoJsonGeometry, System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.PointGeometry>, System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.PointGeometry>
     {
@@ -1458,6 +1493,15 @@ namespace Azure.Analytics.PlanetaryComputer
         string System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.StacAsset>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
         System.BinaryData System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.StacAsset>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
     }
+    public partial class StacAssetData
+    {
+        public StacAssetData(Azure.Analytics.PlanetaryComputer.AssetMetadata data, System.BinaryData file) { }
+        public StacAssetData(Azure.Analytics.PlanetaryComputer.AssetMetadata data, System.ClientModel.FileBinaryContent file) { }
+        public StacAssetData(Azure.Analytics.PlanetaryComputer.AssetMetadata data, System.IO.Stream file) { }
+        public StacAssetData(Azure.Analytics.PlanetaryComputer.AssetMetadata data, string filePath) { }
+        public Azure.Analytics.PlanetaryComputer.AssetMetadata Data { get { throw null; } }
+        public System.ClientModel.FileBinaryContent File { get { throw null; } }
+    }
     [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public readonly partial struct StacAssetUrlSigningMode : System.IEquatable<Azure.Analytics.PlanetaryComputer.StacAssetUrlSigningMode>
     {
@@ -1501,7 +1545,9 @@ namespace Azure.Analytics.PlanetaryComputer
         public virtual System.Threading.Tasks.Task<Azure.Response> AddMosaicAsync(string collectionId, Azure.Core.RequestContent content, Azure.RequestContext context = null) { throw null; }
         public virtual Azure.Operation CreateCollection(Azure.WaitUntil waitUntil, Azure.Analytics.PlanetaryComputer.StacCollectionResource body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual Azure.Operation CreateCollection(Azure.WaitUntil waitUntil, Azure.Core.RequestContent content, Azure.RequestContext context = null) { throw null; }
+        public virtual Azure.Response<Azure.Analytics.PlanetaryComputer.StacCollectionResource> CreateCollectionAsset(string collectionId, Azure.Analytics.PlanetaryComputer.StacAssetData body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual Azure.Response CreateCollectionAsset(string collectionId, Azure.Core.RequestContent content, string contentType, Azure.RequestContext context = null) { throw null; }
+        public virtual System.Threading.Tasks.Task<Azure.Response<Azure.Analytics.PlanetaryComputer.StacCollectionResource>> CreateCollectionAssetAsync(string collectionId, Azure.Analytics.PlanetaryComputer.StacAssetData body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response> CreateCollectionAssetAsync(string collectionId, Azure.Core.RequestContent content, string contentType, Azure.RequestContext context = null) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Operation> CreateCollectionAsync(Azure.WaitUntil waitUntil, Azure.Analytics.PlanetaryComputer.StacCollectionResource body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Operation> CreateCollectionAsync(Azure.WaitUntil waitUntil, Azure.Core.RequestContent content, Azure.RequestContext context = null) { throw null; }
@@ -1613,7 +1659,9 @@ namespace Azure.Analytics.PlanetaryComputer
         public virtual Azure.Response<Azure.Analytics.PlanetaryComputer.TileSettings> GetTileSettings(string collectionId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response> GetTileSettingsAsync(string collectionId, Azure.RequestContext context) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response<Azure.Analytics.PlanetaryComputer.TileSettings>> GetTileSettingsAsync(string collectionId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
+        public virtual Azure.Response<Azure.Analytics.PlanetaryComputer.StacCollectionResource> ReplaceCollectionAsset(string collectionId, string assetId, Azure.Analytics.PlanetaryComputer.StacAssetData body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual Azure.Response ReplaceCollectionAsset(string collectionId, string assetId, Azure.Core.RequestContent content, string contentType, Azure.RequestContext context = null) { throw null; }
+        public virtual System.Threading.Tasks.Task<Azure.Response<Azure.Analytics.PlanetaryComputer.StacCollectionResource>> ReplaceCollectionAssetAsync(string collectionId, string assetId, Azure.Analytics.PlanetaryComputer.StacAssetData body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual System.Threading.Tasks.Task<Azure.Response> ReplaceCollectionAssetAsync(string collectionId, string assetId, Azure.Core.RequestContent content, string contentType, Azure.RequestContext context = null) { throw null; }
         public virtual Azure.Response<Azure.Analytics.PlanetaryComputer.StacMosaic> ReplaceMosaic(string collectionId, string mosaicId, Azure.Analytics.PlanetaryComputer.StacMosaic body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) { throw null; }
         public virtual Azure.Response ReplaceMosaic(string collectionId, string mosaicId, Azure.Core.RequestContent content, Azure.RequestContext context = null) { throw null; }
@@ -2412,7 +2460,7 @@ namespace Azure.Analytics.PlanetaryComputer
     public partial class TilerInfoGeoJsonFeature : System.ClientModel.Primitives.IJsonModel<Azure.Analytics.PlanetaryComputer.TilerInfoGeoJsonFeature>, System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.TilerInfoGeoJsonFeature>
     {
         internal TilerInfoGeoJsonFeature() { }
-        public float? BoundingBox { get { throw null; } }
+        public System.Collections.Generic.IList<float> BoundingBox { get { throw null; } }
         public Azure.Analytics.PlanetaryComputer.GeoJsonGeometry Geometry { get { throw null; } }
         public string Id { get { throw null; } }
         public System.Collections.Generic.IDictionary<string, Azure.Analytics.PlanetaryComputer.TilerInfo> Properties { get { throw null; } }
@@ -2559,13 +2607,5 @@ namespace Azure.Analytics.PlanetaryComputer
         Azure.Analytics.PlanetaryComputer.VariableMatrixWidth System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.VariableMatrixWidth>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
         string System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.VariableMatrixWidth>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
         System.BinaryData System.ClientModel.Primitives.IPersistableModel<Azure.Analytics.PlanetaryComputer.VariableMatrixWidth>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options) { throw null; }
-    }
-}
-namespace Microsoft.Extensions.Azure
-{
-    public static partial class PlanetaryComputerClientBuilderExtensions
-    {
-        public static Azure.Core.Extensions.IAzureClientBuilder<Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClient, Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientOptions> AddPlanetaryComputerProClient<TBuilder>(this TBuilder builder, System.Uri endpoint) where TBuilder : Azure.Core.Extensions.IAzureClientFactoryBuilderWithCredential { throw null; }
-        public static Azure.Core.Extensions.IAzureClientBuilder<Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClient, Azure.Analytics.PlanetaryComputer.PlanetaryComputerProClientOptions> AddPlanetaryComputerProClient<TBuilder, TConfiguration>(this TBuilder builder, TConfiguration configuration) where TBuilder : Azure.Core.Extensions.IAzureClientFactoryBuilderWithConfiguration<TConfiguration> { throw null; }
     }
 }

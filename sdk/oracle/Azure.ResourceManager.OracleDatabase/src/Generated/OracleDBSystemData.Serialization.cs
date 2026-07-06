@@ -42,6 +42,39 @@ namespace Azure.ResourceManager.OracleDatabase
             }
         }
 
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<OracleDBSystemData>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, AzureResourceManagerOracleDatabaseContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(OracleDBSystemData)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<OracleDBSystemData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        OracleDBSystemData IPersistableModel<OracleDBSystemData>.Create(BinaryData data, ModelReaderWriterOptions options) => (OracleDBSystemData)PersistableModelCreateCore(data, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<OracleDBSystemData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="oracleDBSystemData"> The <see cref="OracleDBSystemData"/> to serialize into <see cref="RequestContent"/>. </param>
+        internal static RequestContent ToRequestContent(OracleDBSystemData oracleDBSystemData)
+        {
+            if (oracleDBSystemData == null)
+            {
+                return null;
+            }
+            return RequestContent.Create(oracleDBSystemData, ModelSerializationExtensions.WireOptions);
+        }
+
         /// <param name="response"> The <see cref="Response"/> to deserialize the <see cref="OracleDBSystemData"/> from. </param>
         internal static OracleDBSystemData FromResponse(Response response)
         {
@@ -88,6 +121,21 @@ namespace Azure.ResourceManager.OracleDatabase
                 }
                 writer.WriteEndArray();
             }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -119,11 +167,11 @@ namespace Azure.ResourceManager.OracleDatabase
             string name = default;
             ResourceType resourceType = default;
             SystemData systemData = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             IDictionary<string, string> tags = default;
             AzureLocation location = default;
             OracleDBSystemProperties properties = default;
             IList<string> zones = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("id"u8))
@@ -224,46 +272,11 @@ namespace Azure.ResourceManager.OracleDatabase
                 name,
                 resourceType,
                 systemData,
-                additionalBinaryDataProperties,
                 tags ?? new ChangeTrackingDictionary<string, string>(),
                 location,
                 properties,
-                zones ?? new ChangeTrackingList<string>());
-        }
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<OracleDBSystemData>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<OracleDBSystemData>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, AzureResourceManagerOracleDatabaseContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(OracleDBSystemData)} does not support writing '{options.Format}' format.");
-            }
-        }
-
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        OracleDBSystemData IPersistableModel<OracleDBSystemData>.Create(BinaryData data, ModelReaderWriterOptions options) => (OracleDBSystemData)PersistableModelCreateCore(data, options);
-
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<OracleDBSystemData>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="oracleDBSystemData"> The <see cref="OracleDBSystemData"/> to serialize into <see cref="RequestContent"/>. </param>
-        internal static RequestContent ToRequestContent(OracleDBSystemData oracleDBSystemData)
-        {
-            if (oracleDBSystemData == null)
-            {
-                return null;
-            }
-            Utf8JsonRequestContent content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(oracleDBSystemData, ModelSerializationExtensions.WireOptions);
-            return content;
+                zones ?? new ChangeTrackingList<string>(),
+                additionalBinaryDataProperties);
         }
     }
 }
